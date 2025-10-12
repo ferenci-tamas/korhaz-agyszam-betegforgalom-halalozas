@@ -429,7 +429,7 @@ tárgyév során bekövetkezett változásait is tükröző súlyozott átlaga�
 Érdekes azt is megjegyezni, hogy igazából már az átlagos ápolási
 időtartam sem stimmel (vagy jobban mondva legalábbis nem konzisztens a
 többi adattal): a NEAK [definíciója
-szerint](http://site.oep.hu/statisztika/2011/pdf/hun/Fekvobeteg_modszertan_2011.pdf)
+szerint](https://site.neak.gov.hu/statisztika/2011/pdf/hun/Fekvobeteg_modszertan_2011.pdf)
 ez aktív ellátás esetén „a teljesített ápolási napok száma osztva az
 osztályokról elbocsátott betegek számával”, jelen esetben 11705 / 1841 =
 6.36, ami nem egyezik pontosan a táblázatban szereplő értékkel. (Ez az

@@ -2,7 +2,79 @@ A magyar kórházi ágyszám-, betegforgalmi- és halálozási adatok
 rekonstrukciója, feldolgozhatóvá tétele és megőrzése
 ================
 Ferenci Tamás (<https://www.medstat.hu/>)<br>
-2025. október 12.
+2026. október 22.
+
+- [Összefoglaló](#összefoglaló)
+- [Bevezető gondolatok,
+  problémafelvetés](#bevezető-gondolatok-problémafelvetés)
+- [A végeredmény: a rekonstruált, egységesített, feldolgozható
+  adatsor](#a-végeredmény-a-rekonstruált-egységesített-feldolgozható-adatsor)
+- [Technikai részletek](#technikai-részletek)
+  - [2003 és azt követő adatok: gépi úton feldolgozható formátummá
+    alakítás](#2003-és-azt-követő-adatok-gépi-úton-feldolgozható-formátummá-alakítás)
+  - [2003 előtti adatok: szkennelés és
+    karakterfelismerés](#2003-előtti-adatok-szkennelés-és-karakterfelismerés)
+  - [Az adatok kimentése](#az-adatok-kimentése)
+- [Adatvalidáció](#adatvalidáció)
+
+## Összefoglaló
+
+- A magyar egészségügyi ellátórendszer egyik alappillérét a kórházak
+  jelentik, ennek megfelelően a teljesítményük alakulása nem csak
+  önmagában, hanem az egész ellátórendszer jellemzése tekintetében is
+  fontos.
+- Sajnos erről alig érhető el nyilvános adat; a kevés kivétel egyike az
+  1994 óta minden évben megjelenő úgynevezett Kórházi ágyszám- és
+  betegforgalmi kimutatás.
+- A 2003 és azt követő időszakra elérhetőek a kimutatások elektronikusan
+  és nyilvánosan, de még ekkor sem gépi úton feldolgozható formátumban
+  (egy nem strukturált dokumentumban vannak közzétéve). A 2003 előtti
+  időszakról még csak ez sem mondható el: az akkori kimutatások
+  kizárólag papír-alapon lelhetőek fel könyvtárakban.
+- Éppen ezért egy hobbiprojektet indítottam, melynek célja egyrészt a
+  2003 és későbbi adatok gépi úton feldolgozható formára konvertálása és
+  nyilvános közzététele, másrészt a 2003 előtti kimutatások
+  digitalizálása, a bennük lévő adatok elektronikus formára konvertálása
+  és utána szintén azok nyilvános közzététele gépi feldolgozásra is
+  alkalmas formátumban. Ezek az adatok így tehát már egységes adatbázist
+  alkotnak 1994-től napjainkig, mely bárki számára hozzáférhető, és
+  további elemzésre alkalmas.
+- A projekt célja kettős. Ezen adatok történelmünk egy szeletét
+  dokumentálják; én úgy tekintem, hogy ez egyfajta örökségünk, amit
+  fontos, hogy akár az érdeklődők, akár a jövő történészei, egyáltalán,
+  a következő generációk számára megőrizzünk. Ennek biztonságosabb
+  formáját jelenti, ha ezek az információk nem csak papíron, hanem
+  elektronikusan is megvannak. Másrészt ha az adatokat gépi úton
+  feldolgozható formában is elérhetővé tesszük, akkor a puszta
+  megőrzésen túl azt is elősegítjük, hogy olyan elemzések, empirikus
+  kutatások, vizualizációk tudjanak elkészülni, melyek számszerű
+  adatokon nyugszanak, tudományosan jól megalapozottak és akár hosszú
+  időbeli visszatekintést is tudnak nyújtani. Ilyen elemzést [magam is
+  készítettem](https://github.com/ferenci-tamas/egeszsegpolitika-korhaz)
+  már, ahol ezeket az adatokat használva vontam le egészségpolitikai
+  következtetéseket.
+- A 2003 és későbbi kimutatások a Nemzeti Egészségbiztosítási Alapkezelő
+  honlapján publikusan
+  [elérhetőek](https://www.neak.gov.hu/felso_menu/szakmai_oldalak/publikus_forgalmi_adatok/gyogyito_megelozo_forgalmi_adat/fekvobeteg_szakellatas_stat/korhazi_agyszam),
+  a 2003 előtti adatok esetében pedig az [Országos Egészségtudományi
+  Szakkönyvtár](https://medinfo.aeek.hu/) vállalta – rendkívüli
+  segítőkészségről téve tanúbizonyságot – a könyvek szkennelésének
+  fáradságos munkáját. Ezt köszönöm a könyvtár valamennyi dolgozójának,
+  név szerint külön is Balla Andrea könyvtárvezetőnek és Kovács Ildikó
+  könyvtárosnak. A szkennelt anyagot multimodális nagy nyelvi modellel
+  ismertettem fel, mely lényegében egy optikai karakterfelismerést
+  hajtott végre, de a szokásos módszereknél sokkal hatékonyabban, jól
+  megőrizve az adatok táblázatos formátumát is. E nélkül valószínűleg
+  lehetetlen lett volna számomra ekkora mennyiségű információ gépi úton
+  feldolgozható formátumban történő digitalizálása. A felismerés szinte
+  hibátlan volt, de nem feltétlenül tökéletesen hibátlan; ez függött az
+  alkalmazott modelltől is. Akárhogy is, gondot fordítottam az adatok
+  alapos ellenőrzésére; a véleményem szerint ez minden ilyen és ehhez
+  hasonló projektnél fontos kérdés.
+- Ezen az oldalon bemutatom a munkafolyamatot, és megadom a teljes kódot
+  is, mely a feldolgozást végezte.
+
+## Bevezető gondolatok, problémafelvetés
 
 A magyar egészségügyi ellátórendszer egyik alappillérét a kórházak
 jelentik. Ezek teljesítményének alakulása ebből fakadóan nem csak
@@ -11,93 +83,144 @@ fontos; az erre vonatkozó historikus adatok a magyar egészségügy
 egészének is fontos jellemzői. Sajnos ilyen adatból – pláne a nyugati
 országokkal összevetve – kevés érhető el: jóformán az egyetlen
 nyilvánosan hozzáférhető, átfogó adatforrás az ún. „Kórházi ágyszám- és
-betegforgalmi kimutatás”, melyet 1993 óta tesznek közzé lényegében
-egységes adattartalommal. Ebből megtudható a kórházak szakmai
-osztályonként (belgyógyászat, sebészet stb.) lebontott ágyszáma, a
-felvett betegek száma, a felvett betegek elbocsátási megoszlása
-(eltávozott, más osztályra áthelyezett, meghalt), az egynapos ellátások
-száma, az ápolási napok száma, az átlagos ápolási idő és a halálozási
-arány, mindez évente.
-
-Ahogy említettem, ez ugyan korlátozott mennyiségű információ, de mégis
-sok fontos kérdés már ezekből is megválaszolható. Alkalmas elemzésre,
-egészségpolitikai döntések megalapozására, a trendek vizsgálatára, annak
-megértésére, hogy az ellátórendszer milyen jellemzőkkel bír és hogyan
-alakul.
-
-Még ezen célokra is problémát jelent azonban az adatok
-feldolgozhatósága. Noha 2003-tól kezdve elektronikusan is elérhetőek
-ezek a kimutatások, valójában ezeknél sem egyszerű a helyzet: az adatok
-nem gépi úton feldolgozható formában vannak közzétéve, hanam hatalmas,
-több száz oldalas PDF és doc formátumú fájlokban, ráadásul még azokon
-belül is össze-vissza széttördelt táblázatokban. Így tehát az a helyzet,
-hogy formailag az adatok ugyan közölve vannak, de lényegében semmilyen
-feldolgozásra, elemzésre nem alkalmasak, még a legegyszerűbb vizsgálatok
-elvégzése is lehetetlen ez alapján.
-
-Éppen ezért célul tűztem ki, hogy e kimutatások adatait beolvassam, gépi
-úton feldolgozhatóvá alakítsam, összefűzzem és további elemzésre
-alkalmas formátumban, nyilvánosan közzétegyem. A legkevésbé sem titkolt
-célom ezzel, hogy további kutatásokat inspiráljak, és tegyek lehetővé
-ezáltal. Azt gondolom, hogy ezen információk megőrzése egyfajta
-értékmentés is, hiszen ez a jövő generációk számára is fontos
-adatforrás, hogy rekonstruálni tudják a hazai egészségügyi
-ellátórendszer történetét.
-
-## A GYÓGYINFOK/OEP/NEAK kórházi ágyszám- és betegforgalmi kimutatása
-
-A nagyon kevés, nyilvánosan elérhető, kórházak működésére és
-teljesítményére vonatkozó magyar adatforrás egyike az ún. Kórházi
-ágyszám- és betegforgalmi kimutatás. Ezt évente közzéteszik, eleinte a
+betegforgalmi kimutatás”, melyet 1994 óta minden évben közzétesznek
+lényegében egységes adattartalommal; eleinte a
 [GYÓGYINFOK](https://itf.njszt.hu/324rtr4/uploads/2020/10/a_szekszardi_gyogyinfok_rovid_tortenete.pdf)
 készítette, majd 2004-től az Országos Egészségbiztosítási Pénztár (OEP),
-mai nevén Nemzeti Egészségbiztosítási Alapkezelő (NEAK). Az adatok
-2003-ig visszamenőleg [érhetőek
-el](http://neak.gov.hu/felso_menu/szakmai_oldalak/publikus_forgalmi_adatok/gyogyito_megelozo_forgalmi_adat/fekvobeteg_szakellatas_stat/korhazi_agyszam)
-nyilvánosan.
+mai nevén Nemzeti Egészségbiztosítási Alapkezelő (NEAK).
 
 Ezek a kimutatások alapvetően három típusú adatot tartalmaznak: egyrészt
 a kórházak ágyszámait (lebontva a szerint, hogy működő vagy szünetelő
-ágy) az év utolsó napján és egész éves átlagban, másrészt az elbocsátott
-betegek számát, és lebontásukat meghalt, más osztályra áthelyezett,
-otthonába távozott csoportok szerint (ez lehetővé teszi halálozási arány
-számolását), harmadrészt az átlagos ápolási időtartamot (ezek együtt
-lehetővé teszik ágykihasználás számolását). Ezeket az adatokat
-megyénként, és szerencsére kórházanként is közlik, valamint alábontják
-szakmai osztályonként is. Összességében tehát adott kórház adott
-szakmájához lehet leásni. (A „szakma” itt nem azt jelenti, mint a
-hétköznapi szóhasználatban, mondjuk, hogy orvos vagy ápoló, hanem azt,
-amit szakterületnek szoktak hívni: urológia, szemészet, aneszteziológia
-és intenzív betegellátás stb.) Fontos hiányossága még ennek az
-adatközlésnek is, hogy a „szakmai osztály” nem ugyanaz, mint a kórházi
-osztály: van kórház amelyik három különböző, adott esetben lényegesen
-eltérő betegösszetételű és profilú intenzív osztályt is működtet, ám
-ebben az adatközlésben ezek elkülönítése nem lehetséges. Az ilyen
-különbségeket tehát még ez a relatíve finom felbontású adat is össze
-fogja mosni, erre tekintettel kell lenni. A másik fontos limitáció, hogy
-betegutat nem tudunk vizsgálni, még annak legszűkebb értelmében sem: az
-kiderül, hogy hány beteg van az adott osztályról elbocsátottak között,
-akit más osztályra helyeztek át, de arról nincs semmilyen információnk,
-hogy ez a másik osztály mi volt.
+ágy) az év utolsó napján és – 2002 óta – egész éves átlagban, másrészt
+az elbocsátott betegek számát, és lebontásukat meghalt, más osztályra
+áthelyezett, otthonába távozott csoportok szerint (ez lehetővé teszi
+halálozási arány számolását), külön az egynapos esetek számát,
+harmadrészt a teljesíthető és teljesített ápolási napok számát (ezek
+együtt lehetővé teszik az átlagos ápolási időtartam és az ágykihasználás
+számolását). Ezeket az adatokat megyénként, és szerencsére kórházanként
+is közlik, valamint alábontják szakmai osztályonként is. Összességében
+tehát adott kórház adott szakmájához lehet leásni. (A „szakma” itt nem
+azt jelenti, mint a hétköznapi szóhasználatban, mondjuk, hogy orvos vagy
+ápoló, hanem azt, amit szakterületnek szoktak hívni: urológia,
+szemészet, aneszteziológia és intenzív betegellátás stb.) Fontos
+hiányossága még ennek az adatközlésnek is, hogy a „szakmai osztály” nem
+ugyanaz, mint a kórházi osztály: van kórház amelyik három különböző,
+adott esetben lényegesen eltérő betegösszetételű és profilú intenzív
+osztályt is működtet, ám ebben az adatközlésben ezek elkülönítése nem
+lehetséges. Az ilyen különbségeket tehát még ez a relatíve finom
+felbontású adat is össze fogja mosni, erre tekintettel kell lenni. A
+másik fontos limitáció, hogy betegutat nem tudunk vizsgálni, még annak
+legszűkebb értelmében sem: az kiderül, hogy hány beteg van az adott
+osztályról elbocsátottak között, akit más osztályra helyeztek át, de
+arról nincs semmilyen információnk, hogy ez a másik osztály mi volt.
 
-Bár azt írtam, hogy „nyilvánosan elérhető”, ebben sajnos van egy csavar:
-igen, nyilvánosan elérhető – csak épp egy nagyon nehezen feldolgozható
-formában. Jelesül, több száz oldalas PDF- és doc-fájlt tesznek közzé,
-amelyekben a számok szerencsére táblázatokban, de sajnos össze-vissza
-szerepelnek: a táblázatokat megtörik különböző kommentár-szövegek, több
-fejezetbe vannak szétosztva, véget érnek az egyik oldalon, majd
-folytatódnak a következőn, stb.
+A fentiekből fakadóan ez a kimutatás, korlátaival együtt is, alapvető
+adatforrásunk, ha a magyar kórházi rendszer jellemzőiről, illetve azok
+időbeli alakulásáról objektív, megalapozott vizsgálatokat akarunk
+folytatni. Sok fontos kérdés megválaszolható a benne lévő adatokból,
+alkalmas elemzésre, egészségpolitikai döntések megalapozására, a trendek
+vizsgálatára, annak megértésére, hogy az ellátórendszer milyen
+jellemzőkkel bír és hogyan alakul. Hogy alakult a kórházi ágyak száma az
+elmúlt évtizedekben? Hogy alakult ez szakmánként, melyiknél csökkent és
+melyiknél nőtt? Tényleg vannak nagyon kis forgalmú kórházak, illetve
+kórházi osztályok? Tényleg egyre több szüneteltetett ágy van manapság?
+Sikerült növelni az egynapos ellátások arányát? Hogy alakult a
+halálozási arány? Ha az ilyen és ehhez hasonló kérdésekre tudunk
+válaszolni, az sokszor nem pusztán leíró jellegű megállapítás, hanem
+segíti a folyamatok megértését, a múltbeli egészségpolitikai döntések
+értékelését, a helyzetünk alaposabb átlátását. (Illusztrálva is a fenti
+lehetőséget, néhány kérdésről, melyeket én fontosnak éreztem,
+[készítettem](https://github.com/ferenci-tamas/egeszsegpolitika-korhaz)
+egy hosszú elemzést, számos vizualizációval, összehasonlítással,
+kiegészítve személyes egészségpolitikai véleményemmel.) Itt azonban nem
+pusztán elemzésekről van szó: jó esetben, tehát ha a döntések adatokra
+alapozva születnek, akkor ezek az információk az egészségügyi tervezési,
+irányítási munkát is segítik és így hozzájárulnak a jobb minőségű
+döntéshozatalhoz, ezen keresztül pedig az ország egészségi állapotának
+javításához.
 
-Jelen projekt *elsődleges* célja ezeknek az adatoknak a beolvasása a
-fenti nehézségek ellenére, majd összeállításuk és elérhetővé tételük egy
-gépi úton is feldolgozható, további elemzéseket is kényelmesen lehetővé
-tevő formában; *másodlagos* célja a munkámnak néhány alapvető
-adatvalidáció elvégzése.
+Ezen elemzések elkészüléséhez azonban természetesen az is fontos, hogy a
+kimutatások adatai feldolgozható formában elérhetőek legyenek.
+
+A 2003-as és az utáni kimutatások bárki számára letölthetőek a Nemzeti
+Egészségbiztosítási Alapkezelő (NEAK)
+[honlapjáról](https://neak.gov.hu/felso_menu/szakmai_oldalak/publikus_forgalmi_adatok/gyogyito_megelozo_forgalmi_adat/fekvobeteg_szakellatas_stat/korhazi_agyszam)
+elektronikus formátumban (PDF, illetve DOC fájlként), de valójában
+ezeknél sem egyszerű a helyzet. A probléma az, hogy attól még, mert
+elektronikus, nem dolgozható fel gépi úton, még a DOC fájlok sem: hiába
+lehet ezek tartalmához hozzáférni, azok több száz oldalon keresztül,
+össze-vissza széttördelt táblázatokban találhatóak meg, arról nem
+beszélve, hogy egy dokumentumban csak egyetlen év adatai találhatóak
+meg, míg az elemzésekhez jellemzően az időbeli trendek is fontosak,
+vagyis össze kell(ene) kapcsolni több év adatait. Így tehát az a
+helyzet, hogy formailag az adatok ugyan közölve vannak, de lényegében
+semmilyen feldolgozásra, elemzésre nem alkalmasak, még a legegyszerűbb
+vizsgálatok elvégzése is lehetetlen ez alapján.
+
+Emiatt az első feladat, amit jelen projekt keretében meg kellett
+oldanom, ezen adatok feldolgozható formátumúvá alakítása volt:
+számítógéppel beolvastam a DOC fájlokat, azonosítottam és
+összekapcsoltam a táblázatokat, kiszedtem a tartalmukat, majd egyetlen,
+gépi úton feldolgozható táblázatba rendeztem.
+
+A 2003 előtti években azonban még rosszabb a helyzet, ezek ugyanis
+egyáltalán nincsenek fent a NEAK honlapján. Vajon hol lehet ezeket
+elérni? Gyors kereséssel kiderül, hogy könyvtárakban fellelhetőek
+könyvként kinyomtatott példányok ezekből, így az első gondolatom az
+volt, hogy akkor biztos, hogy ezek is megvannak elektronikusan is
+(elvégre valahonnan csak ki kellett nyomtatni, nem?), csak valamiért nem
+tették fel a NEAK honlapra. Sajnos azonban csalódnom kellett. A NEAK-tól
+azt a tájékoztatást kaptam (Elemzési és Informatikai Osztály, 2023.
+május 25.), hogy ezek soha nem készültek el elektronikus változatban.
+Egész pontosan, idézem őket: „a 2003 évet megelőző időszakra vonatkozóan
+az alapadatokból egy riportgenerátor segítségével egy nyomtatott példány
+készült ezen statisztikából, melyet a nyomda sokszorosított”, tehát a
+„riportgenerátor kimenete nem egy fileba ment, hanem rögtön a
+nyomtatóra”. Vagyis ilyen fájlok azért nem érhetőek el a honlapon, mert
+nem is léteznek és soha nem is léteztek.
+
+A második megoldandó feladat tehát jóval bonyolultabb volt. Felmerülhet
+akár az a kérdés is, hogy vesződjünk egyáltalán ezekkel a régi
+kimutatásokkal? Ezek ugyan napjainak aktuális kérdéseinek
+megválaszolásához talán már kevésbé fontosak, de én azt gondolom, hogy
+igenis van jelentőségük. Ezek az adatok történelmünk egy részéről
+szólnak. Igen, történelmünknek csak egy kis szelete az egészségügy (de
+egy fontos szelete), és igen, annak is csak egy szelete a kórházi
+ellátórendszer (de egy fontos szelete), és persze az is igaz, hogy ezek
+az adatforrások még erről a szeletről is csak korlátozott információkat
+adnak – de alapvető információkat. Ha már nem tudunk mindent megőrizni,
+akkor azt hiszem mondhatjuk, hogy ezek a legalapvetőbb számszerű
+információk, amiket amúgy is érdemes megőrizni az utókor számára a
+magyar kórházi rendszer alakulásáról. Én úgy tekintem, hogy ez egyfajta
+örökségünk, és fontos, hogy akár az érdeklődők, akár a jövő történészei,
+egyáltalán, a következő generációk számára megőrizzük.
+
+Éppen ezért arra gondoltam, hogy igenis jó lenne a 2003 előtti anyagokat
+is megkeresni és a tartalmukat digitalizálni, részint a hozzáférhetőség
+kedvéért – hogy lehessen nagyon hosszú idősoros elemzéseket is végezni,
+ha ezek az adatok is feldolgozhatóak gépi úton – részint, hogy még
+biztosabban megőrizzük az utókor számára. (Egy megjegyzés ehhez az
+utóbbihoz: egyáltalán nem gondolom, hogy a papíralapú változatra nincs
+szükség, mert az elektronikus az „jobb” – szokták mondani, hogy a papír
+kockázatos, mert elázik, elég, megsárgul stb., de valójában az
+elektronikus formátumoknak is megvannak a [maguk
+bajai](https://en.wikipedia.org/wiki/Digital_dark_age), így a
+legbiztosabb, jövő-állósági értelemben, ha mindkettő megvan. Az
+elektronikus formátum további előnye természetesen a gyorsabb
+kereshetőség és a feldolgozhatóság, ahogy már említettem.)
+
+Összességében tehát célul tűztem ki mindkét feladat megoldását, és ennek
+révén azt, hogy egy kezdetektől induló, teljes időszakot lefedő,
+egységes, gépi úton feldolgozható adatbázist hozzak létre a magyar
+kórházak ágyszám-, betegforgalmi- és halálozási adatairól, mely bárki
+számára nyilvánosan elérhető, hogy ezzel is segítsem a jó minőségű
+elemzések megszületését és ezen információk megőrzését a jövő generációk
+számára.
 
 ## A végeredmény: a rekonstruált, egységesített, feldolgozható adatsor
 
 A projekt eredményeként letölthetőek feldolgozható, letisztított és
-egységes formában a magyar aktív fekvőbeteg-ellátás 2003 és 2024 közötti
+egységes formában a magyar aktív fekvőbeteg-ellátás 1994 és 2024 közötti
 ágyszám- és betegforgalmi adatai [CSV
 formátumban](https://github.com/ferenci-tamas/korhaz-agyszam-betegforgalom-halalozas/raw/main/ferenci-tamas-korhaz-agyszam-betegforgalom.csv),
 továbbá [XLSX (Excel)
@@ -113,24 +236,27 @@ lehet, emiatt igyekszem kommentálni is, illetve rámutatni a
 nehézségekre, részint, hogy a munkám teljesen transzparens, bárki
 számára reprodukálható legyen.
 
+Az adatok feldolgozása, és a fenti kitűzött feladatok megvalósítása [R
+statisztikai környezet](https://ferenci-tamas.github.io/r-nyelv/) alatt
+történt. A transzparencia és a nyílt tudomány jegyében a következőkben
+valamennyi R kódot is reprodukálhatóan közlök.
+
+Az adatok kezeléséhez a
+[`data.table`](https://ferenci-tamas.github.io/r-nyelv/datatable.html)
+csomagot használtam:
+
+``` r
+library(data.table)
+```
+
+### 2003 és azt követő adatok: gépi úton feldolgozható formátummá alakítás
+
 Első lépésben kézzel letöltöttem a NEAK honlapjáról az egyes évek
 adatait (ki kell csomagolni egy `zip` fájlból; a régiek `doc`
 formátumban vannak meg), majd minden egyes év adatát kézzel átmentettem
 `docx` formátumba. (Ennek nagy jelentősége nincsen, csak a később
 használt `R` csomag a `docx` formátumot tudja minden további nélkül
 kezelni.)
-
-Az adatok feldolgozása, és a fenti kitűzött feladatok megvalósítása [R
-statisztikai környezet](https://ferenci-tamas.github.io/r-nyelv/) alatt
-történt. A transzparencia és a nyílt tudomány jegyében a következőkben
-valamennyi R kódot is reprodukálhatóan közlök.
-
-Az adatok feldolgozásához a `data.table` csomagot használtam
-segítségként:
-
-``` r
-library(data.table)
-```
 
 Az adatok beolvasásához a `docxtractr` nevű R csomag jelenti a
 megoldást, ez be tud olvasni `docx` formátumú fájlt, sőt, ki tudja
@@ -144,7 +270,7 @@ mit is csinál:
 ``` r
 headernames <- c(
   "Korhaz", "SzakmaKod", "SzakmaMegnev", "OsszesAgy",
-  "MukodoIAgy", "MukodoIIAgy", "TartoSzuneteloAgy",
+  "MukodoIAgy", "MukodoIIAgy", "TartosanSzuneteloAgy",
   "OsszesAtlagAgy", "MukodoAtlagAgy", "ElbocsatottBetegSzam",
   "EltavozottBetegSzam", "MasOsztalyBetegSzam",
   "MeghaltBetegSzam", "EgynaposEsetSzam",
@@ -285,8 +411,7 @@ Nézzük most a szakmákat:
 
 ``` r
 knitr::kable(as.data.table(table(res$SzakmaKod, res$SzakmaMegnev))[
-  N != 0][order(V1), .(`Szakmakód` = V1,
-                       `Szakma megnevezése` = V2)])
+  N != 0][order(V1), .(`Szakmakód` = V1, `Szakma megnevezése` = V2)])
 ```
 
 | Szakmakód | Szakma megnevezése                        |
@@ -351,11 +476,15 @@ pusztán a kód is tükrözi a valós helyzetet.) Potenciálisan zűrös még a
 13-as kód: ez 2011-ig a „Fog- és szájsebészet” volt, utána két évig nem
 használták, majd 2014-ben visszatért, de immár mint „Fogászati ellátás”.
 A biztonság kedvéért ezt is megkülönböztettem (13FSZ és 13F), hozzátéve
-mellesleg, hogy valószínűleg a 17F a 13FSZ átnevezése. Ezen felül az
-egységesség kedvéért javítsuk ki az ingadozó elnevezéseket is (az ízlés
-kérdése, hogy melyiket módosítjuk melyikre, a lényeg, hogy egységes
-legyen); illetve egy szakmanevet is lerövidítünk, hogy jobban kiférjen
-ábrákon. Összesséségében véve a következő átalakításokat tesszük:
+mellesleg, hogy valószínűleg a 13F a 13FSZ átnevezése. (Kevésbé
+kritikus, de 2000-ben és korábban a 90-es kódot használták az
+összegzősor jelölésére, miközben ugyanez a kód később a „mátrix
+intézetet” jelölte. Ez ugyan megint gikszer, de azért nem akkora baj
+most számunkra, mert az összegzősorokat úgyis elhagyjuk a végén.) Ezen
+felül az egységesség kedvéért javítsuk ki az ingadozó elnevezéseket is
+(az ízlés kérdése, hogy melyiket módosítjuk melyikre, a lényeg, hogy
+egységes legyen); illetve egy szakmanevet is lerövidítünk, hogy jobban
+kiférjen ábrákon. Összességében véve a következő átalakításokat tesszük:
 
 ``` r
 res[SzakmaMegnev=="Csecs.- és gyermekgyógy."]$SzakmaMegnev <- "Csecsemő- és gyermekgyógyászat"
@@ -378,26 +507,684 @@ res[SzakmaMegnev=="Fog- és szájsebészet"]$SzakmaKod <- "13FSZ"
 res[SzakmaMegnev=="Fogászati ellátás"]$SzakmaKod <- "13F"
 ```
 
-Ezek után már a megnevezés aggálytalanul használható.
-
-Ezzel végeztünk az előkészületekkel, nincs más dolgunk, mint
-feldolgozható formátumokban lementeni az adatokat:
+Ezek után már a megnevezés aggálytalanul használható. Egy eset van,
+amikor egy szakma nem rendelkezik kóddal, adjunk ennek kézzel kódot,
+hogy ne forduljon ilyen elő, és minden szakmának legyen kódja:
 
 ``` r
+res[SzakmaMegnev=="Rendkívüli osztály"]$SzakmaKod <- "RO"
+```
+
+Nevezzük át az adatbázist a másikkal történő későbbi összeillesztéshez:
+
+``` r
+RawData1 <- res
+```
+
+### 2003 előtti adatok: szkennelés és karakterfelismerés
+
+A 2003 előtti adatokhoz első lépésben mindenképp szükség van a
+kinyomtatott kimutatásokra, illetve azok beszkennelésére. Szerencsére az
+[Országos Egészségtudományi Szakkönyvtárban](https://medinfo.aeek.hu/)
+fellelhető
+[valamennyi](https://medinfokat.aeek.hu/eredmenyek?szemp1=0&kiegtipus_1=&szerzotipus_1=&kiemeltipus_1=&adat1=K%C3%B3rh%C3%A1zi%20%C3%A1gysz%C3%A1m-%20%C3%A9s%20betegforgalmi%20kimutat%C3%A1s&hmuv1=0&szemp2=0&kiegtipus_2=&szerzotipus_2=&kiemeltipus_2=&adat2=&hmuv2=0&szemp3=0&kiegtipus_3=&szerzotipus_3=&kiemeltipus_3=&adat3=&show=0&dokt=0&nyelv=0&rend1=0&csonk=0&annot=0&ocr=n&attach=0&csk=0&db=10&template=normal&showall=%C3%96sszes&form_id=kereses_form&oldal=1)
+kimutatás 1994-től 2002-ig. Felvettem a kapcsolatot a könyvtárral, és
+nagyon gyorsan hatalmas segítséget kaptam tőlük: felajánlották, hogy
+nekiállnak, és beszkennelik ezeket a könyveket. E nélkül soha nem
+valósulhatott volna meg ez a projekt; hálásan köszönöm a könyvtárnak és
+valamennyi dolgozójának a segítséget! Szeretném külön is, név szerint
+köszönetemet kifejezni Balla Andrea könyvtárvezetőnek, aki az első
+pillanattól fogva támogatta a projektet, és Kovács Ildikó könyvtárosnak,
+aki a szkennelés fáradságos munkáját végezte.
+
+Az eredeti szkennelt dokumentumokat szintén [elérhetővé
+teszem](https://github.com/ferenci-tamas/korhaz-agyszam-betegforgalom-halalozas/tree/main/scanned)
+ebben a repozitóriumban.
+
+Ez már megoldja a megőrzés problémáját, de nem oldja meg a
+feldolgozhatóságét. Azt hiszem informatikai szempontból is tanulságos
+(és nagyon jellemző…), hogy milyen evolúciós fázisokon ment át a
+használt munkamódszerem:
+
+- Az első gondolatom az volt, hogy OCR-rel felismertetem a beszkennelt
+  példányokat, de ezzel nem jutottam sokra. Ugyan megpróbáltam (a
+  [Tesseract](https://tesseract-ocr.github.io/) nyílt forráskódú OCR
+  rendszert használva) a felismerést, de az eredmény gyakorlatilag
+  használhatatlan lett. Még az egyedi számok felismerése sem sikerült
+  túl jól, de a táblázat struktúra megőrzése gyakorlatilag reménytelen
+  képet mutatott.
+- Az igazság az, hogy e ponton már majdnem feladtam volna, amikor támadt
+  egy igazán 2020-as évekbeli ötletem – mi volna ha megpróbálnánk
+  multimodális nagy nyelvi modellel? („AI segítségével”, ahogy ma
+  mondani szokták…) Elsőként Gemini 2.5-öt használtam. (Különösebb oka
+  nem volt a Gemini használatának, nem tudományosan választottam ki,
+  egyszerűen ez esett kézre.) Az eredmény az első módszerhez képest
+  sokkoló(an jó) volt: már első próbálkozásra is az OCR-t többszörösen
+  kenterbe verő megoldást szolgáltatott. Ehhez némi grafikai
+  előkészítést is használtam – Otsu-algoritmussal fekete-fehérré
+  alakítottam a képeket, valamint igyekeztem előfeldolgozási lépésként
+  kiegyenesíteni – és hosszabb prompt kellett a feladat leírásához.
+- Amikor harmadszor tértem vissza a kérdésre, a Gemini a 3-as verziónál
+  tartott. A munkafolyamat itt is ugyanaz volt, mint az előbbinél, de –
+  minden módosítás nélkül is – jóval kisebb lett a hibaarány (de még
+  továbbra is használtam a kézi grafikai előkészítést, és szükség volt a
+  hosszú promptra).
+- Az utolsó – és végleges, itt is közölt – eredményekhez a Gemini 3.8-as
+  verzióját használtam. Együtt az API eléréséhez használt R csomag
+  [strukturált
+  adatok](https://ellmer.tidyverse.org/articles/structured-data.html)
+  funkciójával, ez már úgy hozta a szinte tökéletes eredményeket, hogy
+  minimális prompt kellett az adatszerkezet leírásán túl (és a kézi
+  grafikai előkészítést is teljesen elhagytam).
+
+Egy dolgot azonban ezzel együtt is fontosnak tartok kiemelni: hatalmas
+szerencsém volt az összegzősorok jelenlétével. (A kimutatásban, miután
+felsorolja egy kórház összes szakmáját, szerepel egy „összes osztály
+együtt” sor. Ez, pár oszloptól eltekintve, egyszerűen a felette lévő
+sorok összegét tartalmazza.) A dolgot a hibaellenőrzés miatt érzem
+kritikusnak: ez amúgy is fontos lenne, de egy ilyen AI-modellnél, aminél
+mi sem tudhatjuk pontosan, hogy mi történik a háttérben, pláne. Az
+összegzősorok azonban lényegében megoldják ezt a problémát: bár nem
+volna rá szükség, de én ezeket is beolvastattam, kizárólag és
+kifejezetten azért, hogy utána leellenőrizzem, hogy a részletező sorok
+összege valóban kiadja-e az összesen-sort. Azért mondtam, hogy ez
+lényegében megoldja a problémát, mert annak a valószínűsége, hogy
+elromlik valami a részletező sorban *és* elromlik valami ugyanott az
+összegző sorban is *és* úgy romlik el mindkettő, hogy közben az összeg
+egyezése megmaradjon, marginális.
+
+Sőt, még egy ellenőrzési lehetőség volt: pár oszlopot nem csak
+„függőlegesen”, hanem „vízszintesen” is lehetett ellenőrizni. Például a
+halálozási arány az elhunyt és az elbocsátott betegek számának az
+aránya, de mivel mind az előbbi, mind az utóbbi kettő közölt oszlop, így
+ez lehetővé teszi, hogy megnézzük, hogy a kézzel kiszámolt arány
+egyezik-e a közölttel. (Lényegében hasznosítjuk, hogy a halálozási arány
+közlése „redundáns” volt.) Megint csak: marginális annak a
+valószínűsége, hogy az elhunytak vagy az elbocsátottak száma elromlik
+*és* a halálozási arány is elromlik, *és* a kettő úgy romlik el, hogy
+közben a fenti matematikai összefüggés megmaradjon köztük. Hasonló
+ellenőrzési lehetőséget kínál még az összes ágy száma (ez a működő I és
+a tartósan szünetelő összege), az elbocsátott betegek száma (az
+eltávozottak, más osztályra helyezettek és elhunytak összege), az
+ágykihasználás (a teljesített és teljesíthető ápolási napok számának
+hányadosa) és az ápolás átlagos időtartama (a teljesített ápolási napok
+és az elbocsátott betegek számának hányadosa). Az érdekesség kedvéért
+megjegyzem, hogy az 54 hibából 1 olyan volt, aminél bejött a fent
+általam „marginális”-nak nevezett lehetőség: úgy romlott el mind az
+egyik sor, mind az összegző-sor, hogy az összeg stimmelt – de a
+„vízszintes” ellenőrzésen ez is kibukott. Sajnos ilyen ellenőrzés nem
+minden oszlopra van, de azért mint láttuk, a túlnyomó többségükre igen.
+
+A nagyságrendek kedvéért: a teljes 1994 és 2002 közötti adatbázis
+összesen 9280 sort tartalmazott, benne 120 ezer a fenti módon
+ellenőrizhető számmal – és ebből a 120 ezer számból 54 bizonyult
+hibásnak az ellenőrzésen. (Egyébként ezek is szinte kivétel nélkül olyan
+esetek voltak, ahol az eredeti példány annyira rossz minőségben volt
+olvasható, hogy emberi szemmel is nagyon nehéz volt megmondani, hogy
+pontosan mi van leírva. Valójában tehát a legtöbb esetben még csak azt
+sem lehet mondani, hogy itt „hibázott” az AI, mert valószínűleg az
+emberi olvasók is teljesen ingadoztak volna, hogy mi van egyáltalán oda
+írva.) Ez 99,96%. Ezzel együtt is, rendkívül fontos volt, hogy megvoltak
+a fenti ellenőrzési lehetőségek. Lehet, hogy 99,96%, meg mindössze 54
+hiba, de ha nincsenek a fenti ellenőrzési lehetőségek, akkor ezeket jó
+eséllyel soha nem találom meg – vagyis kiadtam volna a kezemből valamit,
+amiben van 54 hibás érték. (Zárójelben: az is fontos tanulság, hogy –
+pont emiatt a ritkaság miatt – ezen a szúrópróba-szerű ellenőrzés sem
+igen segített volna.) Nyilván itt most erősen függ a dolog céljától,
+hogy ez mekkora baj, ebben az esetben nem haltak volna meg emberek, mert
+54 szám hibás, de engem azért zavart volna. Úgyhogy nagyon kellettek az
+összegzősorok és a vízszintes azonosságok, vagyis általában, a tanulság
+az volt számomra, hogy az ilyen AI-os dolgoknál mindig gondolni kell az
+ellenőrzésre.
+
+Félreértés ne essék, bár több órát elvitt a kézi ellenőrzés és javítás,
+tehát azt azért nem lehet mondani, hogy egy pillanat alatt megvolt, de
+össze sem lehet hasonlítani, hogy mennyi munka lett volna AI nélkül –
+konkrétabban szólva, AI nélkül teljesen reménytelen lett volna a
+feladat. A példa kedvéért, 2002 évben önmagában mintegy 20 ezer
+beolvasandó számérték volt, ha az összes táblát egyben tekintjük. Most
+képzelje el bárki, ha ezt – 178 oldalnyi táblázat! – kézzel kellett
+volna begépelni… És ez még csak egyetlen év; ilyenből van 10. Soha az
+életben nem lett volna meg; megbecsülni sem tudom, hogy hány munkaóra
+lenne kézzel begépelni, ráadásul egy embertelen monoton feladat. Az AI
+használatával 3 perc alatt megvolt az eredmény és jó esetben (jó
+minőségű bemenetnél) 5 perc alatt, de rossz esetben is fél óra alatt az
+ellenőrzés.
+
+Nézzük most a technikai részleteket és a konkrét folyamatot!
+
+Amint már említettem, a végleges verzióban a karakterfelismeréshez
+[Google Gemini](https://gemini.google/hu/about/) rendszer
+`gemini-3.8-flash` verzióját használtam. Az API-val az
+[ellmer](https://ellmer.tidyverse.org/) csomag használatával
+kommunikáltam R alatt.
+
+Elsőként be kell állítani az API-kulcsot:
+
+``` r
+Sys.setenv("GEMINI_API_KEY" = "<API-kulcs>")
+```
+
+Beállítunk egy változót arra, hogy melyik évben vagyunk:
+
+``` r
+ev <- 1994
+```
+
+Bizonyos szkennelések előbb a nem kórházi adatokkal (pl. megyei
+bontások) kezdődnek, ezeket célszerű átugrani, hogy gyorsabb, olcsóbb és
+üzembiztosabb legyen a karakterfelismerés:
+
+``` r
+startpage <- 23
+```
+
+Elegánsabb paraméterré tenni, hogy milyen modellt használunk, és hogy
+hol vannak a szkennelt dokumentumok:
+
+``` r
+model <- "gemini-3.8-flash"
+pdf_path <- paste0("./scanned/Kimutatas-", ev, ".pdf")
+```
+
+A következő lépés kritikus: [strukturált
+adatokat](https://ellmer.tidyverse.org/articles/structured-data.html)
+fogunk használni abból a célból, hogy javítsuk a beolvasás minőségét;
+ehhez definiálnunk kell a beolvasandó oldal sémáját. Az egyetlen
+nehézség, hogy ez nem teljesen egységes az évek alatt, erre tekintettel
+kell lennünk:
+
+``` r
+page_type <- type_object(
+  "A single page of the document.",
+  IsKimutatas = type_boolean("TRUE only if this page has a large 'Kórházi ágyszám- és betegforgalmi kimutatás' or 'Kórházi betegforgalmi kimutatás' title in the top-middle part of the page; otherwise FALSE."),
+  KorhazRovid = type_string("4 character identifier on the top right side of the page, after the label 'Intézetkód: '."),
+  KorhazNev = type_string("Name in the top left corner of the page."),
+  # Fenntarto = type_string("Name on the left hand side, below the name of the hospital, in parenthesis. Do not keep the parenthesis, only the text within it."), # csak 1997 és utána
+  KorhazTable = type_array(
+    type_object(
+      "A single row from the table",
+      SzakmaKod = type_string(paste0("Value of the column named '", ifelse(ev > 2000, "Szakmakód", "Sorsz."), "'. If there is a dot after a number, drop the dot and keep only the number.")),
+      SzakmaMegnev = type_string(paste0("Value of the column named '", ifelse(ev > 1996, "Szakma", "Osztály"), " megnevezése'.")),
+      OsszesAgy = type_integer("Value of the column named '1.'."),
+      MukodoIAgy = type_integer("Value of the column named '2/a.'."),
+      MukodoIIAgy = type_integer("Value of the column named '2/b.'."),
+      TartosanSzuneteloAgy = type_integer("Value of the column named '3.'."),
+      # OsszesAtlagAgy = type_number("Value of the column named '4.'. Decimal separator is comma, not dot."), # csak 2002-ben
+      # MukodoAtlagAgy = type_number("Value of the column named '5.'. Decimal separator is comma, not dot."), # csak 2002-ben
+      ElbocsatottBetegSzam = type_integer(paste0("Value of the column named '", ifelse(ev == 2002, 6, 7) ,".'.")),
+      EltavozottBetegSzam = type_integer(paste0("Value of the column named '", ifelse(ev == 2002, 7, 8) ,".'.")),
+      MasOsztalyBetegSzam = type_integer(paste0("Value of the column named '", ifelse(ev == 2002, 8, 9) ,".'.")),
+      MeghaltBetegSzam = type_integer(paste0("Value of the column named '", ifelse(ev == 2002, 9, 10) ,".'.")),
+      EgynaposEsetSzam = type_integer(paste0("Value of the column named '", ifelse(ev == 2002, 10, 11) ,".'.")),
+      TeljesithetoApolasiNapSzam = type_integer(paste0("Value of the column named '", ifelse(ev == 2002, 11, 6) ,".'.")),
+      TeljesitettApolasiNapSzam = type_integer(paste0("Value of the column named '", ifelse(ev > 1996, 12, 13), ".'.")),
+      ApolasAtlTartam = type_number(paste0("Value of the column named '", ifelse(ev > 1996, 13, 14), ".'. Decimal separator is comma, not dot."), required = FALSE),
+      Agykihasznalas = type_number(paste0("Value of the column named '", ifelse(ev > 1996, 14, 15), ".'. Decimal separator is comma, not dot."), required = FALSE),
+      Halalozas = type_number(paste0("Value of the column named '", ifelse(ev > 1996, 15, 16), ".'. Decimal separator is comma, not dot."))
+    ),
+    "All rows extracted from the table of a single page."
+  )
+)
+```
+
+Ezután már csak egy nagyon egyszerű promptra lesz szükségünk:
+
+``` r
+prompt <- paste(
+  "This is a single page from a multi-page scanned Hungarian hospital document.",
+  "If the page shows a large 'Kórházi ágyszám- és betegforgalmi kimutatás' or ",
+  "'Kórházi betegforgalmi kimutatás' title in its top-middle part,",
+  "set IsKimutatas to TRUE and extract the header information and the full data table below it.",
+  "Otherwise set IsKimutatas to FALSE and leave the remaining fields empty."
+)
+```
+
+Ilyen nagy PDF fájlok átadása nem szerencsés, ezért oldalakra bontjuk,
+és beágyazzuk majd később az API-nak átadott promptba:
+
+``` r
+n_pages <- pdftools::pdf_length(pdf_path)
+page_pdfs <- vapply(startpage:n_pages, function(i) {
+  f <- tempfile(fileext = ".pdf")
+  pdftools::pdf_subset(pdf_path, pages = i, output = f)
+  f
+}, character(1))
+```
+
+A következő kulcslépés: összeállítjuk a promptot. Egy listán gyártunk
+belőle (ennek az értelme a következő lépésből fog világossá válni):
+
+``` r
+prompts <- lapply(page_pdfs, function(f) list(content_pdf_file(f), prompt))
+```
+
+Az API-hívások egyik Achilles-ina, hogy nagyon lassúak, tekintetbe véve,
+hogy itt minden egyes oldalt külön adunk át (és több száz van belőlük).
+Valahogy párhuzamosítani kellene őket; de szerencsénk van, mert ehhez
+nem kell „barkácsolni” (kívülről csinálni a párhuzamosítást), mert az
+`ellmer` maga támogatja több prompt párhuzamos beküldését; igazából
+ehhez kellett őket egy listába rakni:
+
+``` r
+res <- parallel_chat_structured(
+  chat_google_gemini(model = model), prompts, type = page_type, max_active = 50,
+  on_error = "continue"
+)
+```
+
+Ellenőrizzük le, hogy minden oldal sikeresen lefutott-e:
+
+``` r
+which(is.na(res$IsKimutatas))
+```
+
+A PDF külön oldalaira többet nem is lesz szükségünk:
+
+``` r
+unlink(page_pdfs)
+```
+
+Eddig nem hangsúlyoztam külön, de a fenti promptból is látszik, hogy nem
+kell kézzel kiválogatnunk azokat az oldalakat, amin a nekünk kellő
+tartalom van – ezt is az AI végzi. Őrizzük meg csak azokat, ami tehát
+nekünk kelleni fog:
+
+``` r
+keep <- which(res$IsKimutatas)
+RawData <- rbindlist(
+  Map(
+    # function(rovid, nev, tbl, fenn) data.table( # csak 1997 és utána
+    function(rovid, nev, tbl) data.table(
+      KorhazRovid = rovid, KorhazNev = nev, tbl # Fenntarto = fenn, # csak 1997 és utána
+    ),
+    res$KorhazRovid[keep], res$KorhazNev[keep],
+    res$KorhazTable[keep] # res$Fenntarto[keep] # csak 1997 és utána
+  ),
+  fill = TRUE
+)
+```
+
+Most, hogy már rendes adattáblánk van, adjuk hozzá az adatokat,
+potenciálisan évtől függő módon (nem minden évben szerepel minden mező):
+
+``` r
+RawData[, Korhaz := paste0(KorhazRovid, " ", KorhazNev)]
+RawData[, Ev := ev]
+if(ev <= 2001) {
+  RawData$OsszesAtlagAgy <- NA
+  RawData$MukodoAtlagAgy <- NA
+}
+if(ev <= 1996) {
+  RawData$Fenntarto <- NA
+}
+```
+
+Következő lépésben elhagyjuk azokat a kórházakat ahol egyáltalán nincs
+is aktív ellátás:
+
+``` r
+RawData <- RawData[, if (any(grepl("Aktív", SzakmaMegnev, ignore.case = TRUE))) .SD,
+                   .(KorhazRovid, KorhazNev)]
+```
+
+Ellenőrizzük, hogy milyen szakma megnevezések és kódok vannak: a fontos
+az, hogy ne legyen az első – aktív – összegzősor feletti sorokban
+véletlenül olyan sor, amihez nincs szakmakód, ugyanis a szkript azzal is
+detektálja az összegzősort, hogy nincs szakmakódja. Ha kell javítsunk
+(egy javítást kellett ehhez tennem, a néhol előforduló „árvíz szükség
+osztály”-hoz egy ÁV kódot rendeltem):
+
+``` r
+data.table(as.data.frame(table(RawData$SzakmaKod, RawData$SzakmaMegnev),
+                         stringsAsFactors = FALSE))[Freq != 0][order(as.numeric(Var1))]
+unique(RawData[is.na(SzakmaKod) | trimws(SzakmaKod) == "" |
+                 SzakmaKod %in% c(80:82, 99) | (Ev <= 2000 & SzakmaKod %in% 90:92)]$SzakmaMegnev)
+```
+
+Ezután már csak az első összegzősorig (azt is beleértve) tartjuk meg az
+eredményeket:
+
+``` r
+RawData <- RawData[
+  , head(.SD, match(TRUE, is.na(SzakmaKod) | trimws(SzakmaKod) == "" |
+                      SzakmaKod %in% c(80:82, 99) | (Ev <= 2000 & SzakmaKod %in% 90:92),
+                    nomatch = .N)), .(KorhazRovid, KorhazNev)]
+```
+
+Most jön az ellenőrzés, megnézzük, hogy az összegzősorok tényleg
+kiadják-e a felette lévő sorok kézzel kiszámolt összegét:
+
+``` r
+check_cols <- c(
+  "OsszesAgy", "MukodoIAgy", "MukodoIIAgy", "TartosanSzuneteloAgy",
+  "OsszesAtlagAgy", "MukodoAtlagAgy", "ElbocsatottBetegSzam",
+  "EltavozottBetegSzam", "MasOsztalyBetegSzam", "MeghaltBetegSzam",
+  "EgynaposEsetSzam", "TeljesithetoApolasiNapSzam", "TeljesitettApolasiNapSzam"
+)
+
+chk <- melt(RawData, id.vars = c("KorhazRovid", "KorhazNev", "SzakmaKod", "Ev"),
+            measure.vars = check_cols)[, {
+              blank <- is.na(SzakmaKod) | trimws(SzakmaKod) == "" |
+                SzakmaKod %in% c(80:82, 99) | (Ev <= 2000 & SzakmaKod %in% 90:92)
+              .(KozoltOsszeg = value[blank], KeziOsszeg = sum(value[!blank]))
+            }, .(KorhazRovid, KorhazNev, variable)]
+chk[, Diff := KozoltOsszeg - KeziOsszeg]
+
+chk[Diff != 0]
+chk[(variable %notin% c("OsszesAtlagAgy", "MukodoAtlagAgy") & Diff != 0) |
+      variable %in% c("OsszesAtlagAgy", "MukodoAtlagAgy") & abs(Diff) > 0.11][order(KorhazRovid)]
+```
+
+Megnézzük azt is, hogy hol van adathiány:
+
+``` r
+melt(RawData, id.vars = c("KorhazRovid", "KorhazNev", "Fenntarto", "SzakmaKod", "SzakmaMegnev", "Korhaz", "Ev"))[
+  is.na(value) & (ev == 2002 | variable %notin% c("OsszesAtlagAgy", "MukodoAtlagAgy"))][order(KorhazRovid)]
+```
+
+Ezek fényében elvégezhetjük a szükséges kézi javításokat. (Ezt nem
+teszem közzé, nem azért mert meggondoltam magam a transzparenciát
+illetően, hanem azért, mert az AI nem determinisztikus, tehát egy
+tökéletesen azonos körülmények között történő újrafuttatásnál is mások
+lennének a javítandó hibák, így valójában ez semmit nem segítene a
+transzparencián.)
+
+A kapott eredményt mentsük le évenként külön-külön is:
+
+``` r
+saveRDS(RawData, paste0("./scanned/RawData-", ev, ".rds"))
+```
+
+Erre a lementésre azért is szükség van, mert a már említett nem
+determinisztikus jelleg miatt valójában az eddigi kód nem
+reprodukálható: a fenti kódok itt most nem futnak, de az eredményük
+ezekben a fájlokban le van mentve, és része a repozitóriumnak. A kód
+innentől válik reprodukálhatóvá.
+
+Olvassuk be az összes fájlt egyben:
+
+``` r
+RawData2 <- rbindlist(lapply(list.files("./scanned/", "*.rds", full.names = TRUE), readRDS),
+                      use.names = TRUE, fill = TRUE)
+```
+
+Ellenőrizzük, hogy a feltételeink szerinti összegzősorok valóban
+összegzősorok-e, és ha igen, hagyjuk el őket:
+
+``` r
+unique(RawData2[is.na(SzakmaKod) | trimws(SzakmaKod) == "" | SzakmaKod %in% c(80:82, 99) |
+                  (Ev <= 2000 & SzakmaKod %in% 90:92)]$SzakmaMegnev)
+```
+
+    ## [1] "Aktív betegell. oszt. együtt" "Összesen"
+
+``` r
+RawData2 <- RawData2[!(is.na(SzakmaKod) | trimws(SzakmaKod) == "" | SzakmaKod %in% c(80:82, 99)
+                       | (Ev <= 2000 & SzakmaKod %in% 90:92))]
+```
+
+Most már elvégezhetjük az ötféle „vízszintes” ellenőrzést is:
+
+``` r
+identical(RawData2$OsszesAgy, RawData2$MukodoIAgy + RawData2$TartosanSzuneteloAgy)
+```
+
+    ## [1] TRUE
+
+``` r
+identical(RawData2$ElbocsatottBetegSzam,
+          RawData2$EltavozottBetegSzam + RawData2$MasOsztalyBetegSzam + RawData2$MeghaltBetegSzam)
+```
+
+    ## [1] TRUE
+
+``` r
+all.equal(RawData2[ElbocsatottBetegSzam != 0]$Halalozas,
+          RawData2[ElbocsatottBetegSzam != 0]$MeghaltBetegSzam /
+            RawData2[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam * 100, tolerance = 1e-2)
+```
+
+    ## [1] TRUE
+
+``` r
+all.equal(RawData2[TeljesithetoApolasiNapSzam != 0]$Agykihasznalas,
+          RawData2[TeljesithetoApolasiNapSzam != 0]$TeljesitettApolasiNapSzam /
+            RawData2[TeljesithetoApolasiNapSzam != 0]$TeljesithetoApolasiNapSzam * 100, tolerance = 1e-2)
+```
+
+    ## [1] TRUE
+
+``` r
+all.equal(RawData2[ElbocsatottBetegSzam != 0]$ApolasAtlTartam,
+          RawData2[ElbocsatottBetegSzam != 0]$TeljesitettApolasiNapSzam /
+            RawData2[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam, tolerance = 1e-2)
+```
+
+    ## [1] TRUE
+
+A szakmakódok itt nem egységesen két karakteresek, ezt javítsuk ki:
+
+``` r
+RawData2$SzakmaKod <- stringr::str_pad(RawData2$SzakmaKod, 2, "left", "0")
+```
+
+Van pár rosszul felismert fenntartó, javítsuk ezeket is:
+
+``` r
+unique(RawData2$Fenntarto)
+```
+
+    ##  [1] NA                     "IM kórház"            "Önkormányzati kórház"
+    ##  [4] "Egyházi kórház"       "Klinika"              "Állami kórház"       
+    ##  [7] "HM és BM kórház"      "MÁV kórház"           "önkormányzati kórház"
+    ## [10] "IM. kórház"           "Egyéb kórház"         "Alapítványi kórház"
+
+``` r
+RawData2[Fenntarto == "IM. kórház"]$Fenntarto <- "IM kórház"
+RawData2[Fenntarto == "önkormányzati kórház"]$Fenntarto <- "Önkormányzati kórház"
+```
+
+A szakmák megnevezései itt is elég kaotikusak (sőt, itt pláne azok, a
+felismerési hibák miatt):
+
+``` r
+knitr::kable(as.data.table(table(RawData2$SzakmaKod, RawData2$SzakmaMegnev))[
+  N != 0][order(V1), .(`Szakmakód` = V1, `Szakma megnevezése` = V2)])
+```
+
+| Szakmakód | Szakma megnevezése           |
+|:----------|:-----------------------------|
+| 01        | Belgyógyászat                |
+| 02        | Sebészet                     |
+| 03        | Traumatológia                |
+| 04        | Sz÷lészet-nőgyógyászat       |
+| 04        | Szólészet-nőgyógyászat       |
+| 04        | Szôlészet-nőgyógyászat       |
+| 04        | Szùlészet-nőgyógyászat       |
+| 04        | Szülészet-nőgyógyászat       |
+| 05        | Csecs- és gyermekgyógy       |
+| 05        | Csecs- és gyermekgyógy.      |
+| 05        | Csecs - és gyermekgyógy.     |
+| 05        | Csecs.- és gyermekgyóg.      |
+| 05        | Csecs.- és gyermekgyógy      |
+| 05        | Csecs.- és gyermekgyógy.     |
+| 05        | Csecs. és gyermekgyógy.      |
+| 05        | Csecsemő- és gyermekgyógy.   |
+| 06        | Fól-orr-gégészet             |
+| 06        | Fõl-orr-gégészet             |
+| 06        | Fül-orr-gégeágészet          |
+| 06        | Fül-orr-gégeészet            |
+| 06        | Fül-orr-gégészet             |
+| 07        | Szemészet                    |
+| 08        | Bőr- és nemibeteg            |
+| 08        | Bőr- és nemibeteg.           |
+| 08        | Bőr-és nemibeteg             |
+| 09        | Ideggyógyászat               |
+| 10        | Ortopédia                    |
+| 11        | Urológia                     |
+| 12        | Onkológia, onkoradiológia    |
+| 12        | Onkológia; onkoradiológia    |
+| 13        | Fog- és szájsebészet         |
+| 13        | Fog-és szájsebészet          |
+| 14        | Reumatológia                 |
+| 15        | Intenzív betegellátó         |
+| 16        | Fertőző betegellátó          |
+| 17        | Felvételi osztály            |
+| 17        | Felvétell osztály            |
+| 18        | Elmegyógyászat               |
+| 19        | Tüdőgyógyászat               |
+| 90        | Mátrix intézet               |
+| 91        | Belgyógyászati típusú mátrix |
+| 92        | Sebészeti típusú mátrix      |
+| ÁV        | Árvíz szűkös osztály         |
+| ÁV        | Árvíz szükség osztály        |
+
+Ezt itt azonban a legegyszerűbb már a kódokkal helyretenni (a fenti
+táblázatból látszik, hogy ezek jók):
+
+``` r
+RawData2[SzakmaKod == "04"]$SzakmaMegnev <- "Szülészet-nőgyógyászat"
+RawData2[SzakmaKod == "05"]$SzakmaMegnev <- "Csecsemő- és gyermekgyógyászat"
+RawData2[SzakmaKod == "06"]$SzakmaMegnev <- "Fül-orr-gégegyógyászat"
+RawData2[SzakmaKod == "08"]$SzakmaMegnev <- "Bőr- és nemibeteg"
+RawData2[SzakmaKod == "12"]$SzakmaMegnev <- "Onkológia, onkoradiológia"
+RawData2[SzakmaKod == "13"]$SzakmaMegnev <- "Fog- és szájsebészet"
+RawData2[SzakmaKod == "17"]$SzakmaMegnev <- "Felvételi osztály"
+RawData2[SzakmaKod == "ÁV"]$SzakmaMegnev <- "Árvíz szükség osztály"
+```
+
+Végezzük el ugyanazokat az átalakításokat itt is, amiket megtettünk a
+2002 utáni adatoknál:
+
+``` r
+RawData2[SzakmaKod == "09"]$SzakmaMegnev <- "Neurológia"
+RawData2[SzakmaKod == "15"]$SzakmaMegnev <- "Aneszt. és intenzív betegellátás"
+RawData2[SzakmaKod == "16"]$SzakmaMegnev <- "Infektológia"
+RawData2[SzakmaKod == "18"]$SzakmaMegnev <- "Pszichiátria"
+
+RawData2[SzakmaMegnev=="Felvételi osztály"]$SzakmaKod <- "17F"
+RawData2[SzakmaMegnev=="Ortopédia"]$SzakmaKod <- "10O"
+RawData2[SzakmaMegnev=="Fog- és szájsebészet"]$SzakmaKod <- "13FSZ"
+```
+
+Ilyen módon előkészítettük a 2003 előtti adatokat is.
+
+### Az adatok kimentése
+
+Ezzel végeztünk, nincs más dolgunk, mint összekapcsolni a két
+adatbázist, és feldolgozható formátumokban lementeni az adatokat:
+
+``` r
+res <- rbind(RawData1, RawData2)[order(-Ev, KorhazRovid, SzakmaKod)]
+
 saveRDS(res, "ferenci-tamas-korhaz-agyszam-betegforgalom.rds")
 fwrite(res, "ferenci-tamas-korhaz-agyszam-betegforgalom.csv",
        sep = ";", dec = ",", row.names = FALSE, bom = TRUE)
-openxlsx2::write_xlsx(
-  res, "ferenci-tamas-korhaz-agyszam-betegforgalom.xlsx")
+openxlsx2::write_xlsx(res, "ferenci-tamas-korhaz-agyszam-betegforgalom.xlsx")
 ```
 
 ## Adatvalidáció
 
 Az adatok validitása alatt nem azt értem, hogy melyik adat „gyanús” vagy
 akár „szinte irreális” (ilyen is van), hanem azt, ami *matematikailag*
-lehetetlen, hogy jó legyen.
+lehetetlen, hogy jó legyen. Több ilyen ellenőrzési lehetőségünk is van.
 
-Két ilyen ellenőrzési lehetőséget találtam:
+Először is, megvizsgálhatjuk azt az 5 feltételt, amit a 2003 előtti
+adatoknál visszaellenőriztünk. (Vegyük észre, hogy a későbbi adatokra
+azt nem vizsgáltuk meg!) Íme az eredmény:
+
+``` r
+identical(res$OsszesAgy, res$MukodoIAgy + res$TartosanSzuneteloAgy)
+```
+
+    ## [1] FALSE
+
+``` r
+identical(res$ElbocsatottBetegSzam,
+          res$EltavozottBetegSzam + res$MasOsztalyBetegSzam + res$MeghaltBetegSzam)
+```
+
+    ## [1] FALSE
+
+``` r
+all.equal(res[ElbocsatottBetegSzam != 0]$Halalozas,
+          res[ElbocsatottBetegSzam != 0]$MeghaltBetegSzam /
+            res[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam * 100, tolerance = 1e-2)
+```
+
+    ## [1] TRUE
+
+``` r
+all.equal(res[TeljesithetoApolasiNapSzam != 0]$Agykihasznalas,
+          res[TeljesithetoApolasiNapSzam != 0]$TeljesitettApolasiNapSzam /
+            res[TeljesithetoApolasiNapSzam != 0]$TeljesithetoApolasiNapSzam * 100, tolerance = 1e-2)
+```
+
+    ## [1] TRUE
+
+``` r
+all.equal(res[ElbocsatottBetegSzam != 0]$ApolasAtlTartam,
+          res[ElbocsatottBetegSzam != 0]$TeljesitettApolasiNapSzam /
+            res[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam, tolerance = 1e-2)
+```
+
+    ## [1] TRUE
+
+Az első teszt (az összes ágy száma egyenlő a tartósan szünetelő és a
+tartósan nem szünetelő ágyak számának összegével) elbukik a következő
+eseteken:
+
+``` r
+res[which(OsszesAgy != MukodoIAgy + TartosanSzuneteloAgy),
+    .(`Kórház kódja` = KorhazRovid, `Kórház neve` = KorhazNev, `Szakmakód` = SzakmaKod,
+      `Szakma megnevezése` = SzakmaMegnev, `Összes ágy` = OsszesAgy,
+      `Nem tartósan szünetelő (működő-I) ágy` = MukodoIAgy,
+      `Tartósan szünetelő ágy` = TartosanSzuneteloAgy)]
+```
+
+<div class="kable-table">
+
+| Kórház kódja | Kórház neve | Szakmakód | Szakma megnevezése | Összes ágy | Nem tartósan szünetelő (működő-I) ágy | Tartósan szünetelő ágy |
+|:---|:---|:---|:---|---:|---:|---:|
+| 0119 | Nyírő Gyula Kórház-Országos Pszichiátriai és Addiktológiai Intézet | 15 | Aneszt. és intenzív betegellátás | 9 | 9 | 2 |
+| 01A6 | Magyar Honvédség Egészségügyi Központ | 02 | Sebészet | 170 | 170 | 6 |
+| 0502 | Borsod-Abaúj-Zemplén Megyei Kórház és Egyetemi Oktató Kórház | 11 | Urológia | 65 | 65 | 5 |
+| 0701 | Fejér Megyei Szent György Kórház, Székesfehérvár | 19 | Tüdőgyógyászat | 64 | 64 | 4 |
+
+</div>
+
+A második teszt (az elbocsátott betegek száma egyenlő az eltávozott, a
+más osztályra áthelyezett és az elhunyt betegek számának összegével)
+elbukik a következő esetekben:
+
+``` r
+res[which(ElbocsatottBetegSzam != EltavozottBetegSzam + MasOsztalyBetegSzam + MeghaltBetegSzam),
+    .(`Kórház kódja` = KorhazRovid, `Kórház neve` = KorhazNev, `Szakmakód` = SzakmaKod,
+      `Szakma megnevezése` = SzakmaMegnev, `Elbocsátott` = ElbocsatottBetegSzam,
+      `Eltávozott` = EltavozottBetegSzam, `Más osztályra áthelyezett` = MasOsztalyBetegSzam,
+      `Meghalt` = MeghaltBetegSzam)]
+```
+
+<div class="kable-table">
+
+| Kórház kódja | Kórház neve | Szakmakód | Szakma megnevezése | Elbocsátott | Eltávozott | Más osztályra áthelyezett | Meghalt |
+|:---|:---|:---|:---|---:|---:|---:|---:|
+| 0109 | Fővárosi Önk. Egyesített Szent István és Szent László KH-RI | 01 | Belgyógyászat | 7782 | 6561 | 724 | 498 |
+| 0109 | Fővárosi Önk. Egyesített Szent István és Szent László KH-RI | 02 | Sebészet | 2391 | 2124 | 226 | 42 |
+| 0109 | Fővárosi Önk. Egyesített Szent István és Szent László KH-RI | 03 | Traumatológia | 7114 | 6375 | 538 | 202 |
+| 0109 | Fővárosi Önk. Egyesített Szent István és Szent László KH-RI | 15 | Aneszt. és intenzív betegellátás | 625 | 130 | 311 | 190 |
+| 0109 | Fővárosi Önk. Egyesített Szent István és Szent László KH-RI | 16 | Infektológia | 6708 | 6392 | 132 | 187 |
+
+</div>
+
+A dolog azért érdekes, mert ezt a tesztet eredetileg a
+karakterfelismerési hibák miatt találtuk ki – ezért is nem futott eddig
+a későbbi adatokra – de a fentiek szerint valójában ott bukik el, ahol
+nincs is karakterfelismerés – ezek tehát, úgy tűnik, valódi adatközlési
+hibák.
+
+Két további ellenőrzési lehetőség is adja magát:
 
 - Az ágykihasználás visszaellenőrzése: több esetet találtam, amikor az
   elbocsátott betegek száma nagyobb, mint ami 100%-os ágykihasználásnál
@@ -407,7 +1194,10 @@ Két ilyen ellenőrzési lehetőséget találtam:
   ahány egynapos esetük volt.
 
 Sajnos a fenti jelenségekre nem találtam magyarázatot; mindenesetre a
-következőkben közlöm a részleteket.
+következőkben közlöm a részleteket. Fontos megjegyezni elöljáróban, hogy
+ezek mind felhasználják a működő ágyak átlagos számát, így csak a 2002
+és azt követő évekre vonatkoznak (a korábbi években ugyanis ezt a
+rovatot nem tartalmazta a kimutatás).
 
 Az egyik változó, ami más adatokkal validálható, az ágykihasználás. Az
 egyszerűség kedvéért vegyünk egy konkrét példát: 2021-ben a hatvani
@@ -418,7 +1208,8 @@ pillanatban, hogy felszabadult egy ágy, azonnal új beteg került rá, egy
 átlagosan 6 ágyuk volt, ez összesen 6 · 56.2 = 337.4 beteg. Igen ám, de
 közben a tényleges betegforgalom 1841 beteg volt! (Az elméleti maximum
 5.5-szerese!) Ezt – intenzív osztályról lévén szó nem meglepő módon – az
-egynapos ellátás sem tudja megmagyarázni, ilyen ugyanis nem volt.
+egynapos ellátás sem tudja megmagyarázni, ilyen ugyanis elhanyagolható
+számban volt.
 
 Nem tudom a jelenség magyarázata mi lehet, kézenfekvőnek tűnik, hogy a
 koronavírus-járvány miatt került ide sok beteg, nagyobb ágyszámon, de ha
@@ -435,7 +1226,7 @@ osztályokról elbocsátott betegek számával”, jelen esetben 11705 / 1841 =
 6.36, ami nem egyezik pontosan a táblázatban szereplő értékkel. (Ez az
 apró eltérés az oka annak, hogy a fenti kiszámolt hányados nem egyezik
 pontosan a táblában közölt ágykihasználással, ami 534.47%, mindenesetre
-ez is bőven 100% feletti.) A dolog nem egyedi, összesen 372 példa van
+ez is bőven 100% feletti.) A dolog nem egyedi, összesen 648 példa van
 ilyen adatra. Egyáltalán nem csak a koronavírus-járvány éveiről van szó,
 jó kérdés tehát, hogy mi lehet a magyarázat…
 
@@ -445,7 +1236,7 @@ szemészete nem rendelkezett egyetlen ággyal sem, mégis elbocsátott 937
 beteget. Ez nem meglepő, mert egynapos ellátást nyújtott – igen ám, csak
 az egynapos ellátási események száma 934 volt. A különbség nem nagy,
 talán csak banális adminisztrációs hibáról van szó, mindenesetre a
-teljes adatbázisban 1134 esetben fordul elő, hogy működő ágy nélkül
+teljes adatbázisban 1135 esetben fordul elő, hogy működő ágy nélkül
 osztályok több beteget bocsátottak el, mint ahány egynapos esetük volt.
 
 És még egy megjegyzés a végére, ami immár nem egy gépi úton, hanem

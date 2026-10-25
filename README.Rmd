@@ -15,7 +15,7 @@ lang: hu
 - A magyar egészségügyi ellátórendszer egyik alappillérét a kórházak jelentik, ennek megfelelően a teljesítményük alakulása nem csak önmagában, hanem az egész ellátórendszer jellemzése tekintetében is fontos.
 - Sajnos erről alig érhető el nyilvános adat; a kevés kivétel egyike az 1994 óta minden évben megjelenő úgynevezett Kórházi ágyszám- és betegforgalmi kimutatás.
 - A 2003 és azt követő időszakra elérhetőek a kimutatások elektronikusan és nyilvánosan, de még ekkor sem gépi úton feldolgozható formátumban (egy nem strukturált dokumentumban vannak közzétéve). A 2003 előtti időszakról még csak ez sem mondható el: az akkori kimutatások kizárólag papír-alapon lelhetőek fel könyvtárakban.
-- Éppen ezért egy hobbiprojektet indítottam, melynek célja egyrészt a 2003 és későbbi adatok gépi úton feldolgozható formára konvertálása és nyilvános közzététele, másrészt a 2003 előtti kimutatások digitalizálása, a bennük lévő adatok elektronikus formára konvertálása és utána szintén azok nyilvános közzététele gépi feldolgozásra is alkalmas formátumban. Ezek az adatok így tehát már egységes adatbázist alkotnak 1994-től napjainkig, mely bárki számára hozzáférhető, és további elemzésre alkalmas.
+- Éppen ezért egy hobbiprojektet indítottam, melynek célja az aktív fekvőbeteg-ellátásra vonatkozóan egyrészt a 2003 és későbbi adatok gépi úton feldolgozható formára konvertálása és nyilvános közzététele, másrészt a 2003 előtti kimutatások digitalizálása, a bennük lévő adatok elektronikus formára konvertálása és utána szintén azok nyilvános közzététele gépi feldolgozásra is alkalmas formátumban. Ezek az adatok így tehát már egységes adatbázist alkotnak 1994-től napjainkig, mely bárki számára hozzáférhető, és további elemzésre alkalmas.
 - A projekt célja kettős. Ezen adatok történelmünk egy szeletét dokumentálják; én úgy tekintem, hogy ez egyfajta örökségünk, amit fontos, hogy akár az érdeklődők, akár a jövő történészei, egyáltalán, a következő generációk számára megőrizzünk. Ennek biztonságosabb formáját jelenti, ha ezek az információk nem csak papíron, hanem elektronikusan is megvannak. Másrészt ha az adatokat gépi úton feldolgozható formában is elérhetővé tesszük, akkor a puszta megőrzésen túl azt is elősegítjük, hogy olyan elemzések, empirikus kutatások, vizualizációk tudjanak elkészülni, melyek számszerű adatokon nyugszanak, tudományosan jól megalapozottak és akár hosszú időbeli visszatekintést is tudnak nyújtani. Ilyen elemzést [magam is készítettem](https://github.com/ferenci-tamas/egeszsegpolitika-korhaz) már, ahol ezeket az adatokat használva vontam le egészségpolitikai következtetéseket.
 - A 2003 és későbbi kimutatások a Nemzeti Egészségbiztosítási Alapkezelő honlapján publikusan [elérhetőek](https://www.neak.gov.hu/felso_menu/szakmai_oldalak/publikus_forgalmi_adatok/gyogyito_megelozo_forgalmi_adat/fekvobeteg_szakellatas_stat/korhazi_agyszam), a 2003 előtti adatok esetében pedig az [Országos Egészségtudományi Szakkönyvtár](https://medinfo.aeek.hu/) vállalta -- rendkívüli segítőkészségről téve tanúbizonyságot -- a könyvek szkennelésének fáradságos munkáját. Ezt köszönöm a könyvtár valamennyi dolgozójának, név szerint külön is Balla Andrea könyvtárvezetőnek és Kovács Ildikó könyvtárosnak. A szkennelt anyagot multimodális nagy nyelvi modellel ismertettem fel, mely lényegében egy optikai karakterfelismerést hajtott végre, de a szokásos módszereknél sokkal hatékonyabban, jól megőrizve az adatok táblázatos formátumát is. E nélkül valószínűleg lehetetlen lett volna számomra ekkora mennyiségű információ gépi úton feldolgozható formátumban történő digitalizálása. A felismerés szinte hibátlan volt, de nem feltétlenül tökéletesen hibátlan; ez függött az alkalmazott modelltől is. Akárhogy is, gondot fordítottam az adatok alapos ellenőrzésére; a véleményem szerint ez minden ilyen és ehhez hasonló projektnél fontos kérdés.
 - Ezen az oldalon bemutatom a munkafolyamatot, és megadom a teljes kódot is, mely a feldolgozást végezte.
@@ -40,7 +40,7 @@ A második megoldandó feladat tehát jóval bonyolultabb volt. Felmerülhet ak�
 
 Éppen ezért arra gondoltam, hogy igenis jó lenne a 2003 előtti anyagokat is megkeresni és a tartalmukat digitalizálni, részint a hozzáférhetőség kedvéért -- hogy lehessen nagyon hosszú idősoros elemzéseket is végezni, ha ezek az adatok is feldolgozhatóak gépi úton -- részint, hogy még biztosabban megőrizzük az utókor számára. (Egy megjegyzés ehhez az utóbbihoz: egyáltalán nem gondolom, hogy a papíralapú változatra nincs szükség, mert az elektronikus az "jobb" -- szokták mondani, hogy a papír kockázatos, mert elázik, elég, megsárgul stb., de valójában az elektronikus formátumoknak is megvannak a [maguk bajai](https://en.wikipedia.org/wiki/Digital_dark_age), így a legbiztosabb, jövő-állósági értelemben, ha mindkettő megvan. Az elektronikus formátum további előnye természetesen a gyorsabb kereshetőség és a feldolgozhatóság, ahogy már említettem.)
 
-Összességében tehát célul tűztem ki mindkét feladat megoldását, és ennek révén azt, hogy egy kezdetektől induló, teljes időszakot lefedő, egységes, gépi úton feldolgozható adatbázist hozzak létre a magyar kórházak ágyszám-, betegforgalmi- és halálozási adatairól, mely bárki számára nyilvánosan elérhető, hogy ezzel is segítsem a jó minőségű elemzések megszületését és ezen információk megőrzését a jövő generációk számára.
+Összességében tehát célul tűztem ki mindkét feladat megoldását, és ennek révén azt, hogy egy kezdetektől induló, teljes időszakot lefedő, egységes, gépi úton feldolgozható adatbázist hozzak létre a magyar aktív fekvőbeteg-ellátás ágyszám-, betegforgalmi- és halálozási adatairól, mely bárki számára nyilvánosan elérhető, hogy ezzel is segítsem a jó minőségű elemzések megszületését és ezen információk megőrzését a jövő generációk számára.
 
 ## A végeredmény: a rekonstruált, egységesített, feldolgozható adatsor
 
@@ -126,10 +126,9 @@ res <- rbindlist(lapply(files, function(file) {
 }))
 
 res <- res[order(Ev)]
-res$KorhazNev <- ifelse(
-  do.call(c, gregexpr("(", res$Korhaz, fixed = TRUE))==-1,
-  substring(res$Korhaz, 6), substring(res$Korhaz, 6,
-                                      nchar(res$Korhaz)-17))
+res$KorhazNev <- res$Korhaz |>
+    sub(pattern = "^\\S+\\s+", replacement = "") |>
+    sub(pattern = "\\s*\\(NEAK kód:[^()]*\\)$", replacement = "")
 ```
 
 A következő kommentárok tartoznak a fentiekhez:
@@ -201,9 +200,9 @@ Ez már megoldja a megőrzés problémáját, de nem oldja meg a feldolgozhatós
 - Amikor harmadszor tértem vissza a kérdésre, a Gemini a 3-as verziónál tartott. A munkafolyamat itt is ugyanaz volt, mint az előbbinél, de -- minden módosítás nélkül is -- jóval kisebb lett a hibaarány (de még továbbra is használtam a kézi grafikai előkészítést, és szükség volt a hosszú promptra).
 - Az utolsó -- és végleges, itt is közölt -- eredményekhez a Gemini 3.8-as verzióját használtam. Együtt az API eléréséhez használt R csomag [strukturált adatok](https://ellmer.tidyverse.org/articles/structured-data.html) funkciójával, ez már úgy hozta a szinte tökéletes eredményeket, hogy minimális prompt kellett az adatszerkezet leírásán túl (és a kézi grafikai előkészítést is teljesen elhagytam).
 
-Egy dolgot azonban ezzel együtt is fontosnak tartok kiemelni: hatalmas szerencsém volt az összegzősorok jelenlétével. (A kimutatásban, miután felsorolja egy kórház összes szakmáját, szerepel egy "összes osztály együtt" sor. Ez, pár oszloptól eltekintve, egyszerűen a felette lévő sorok összegét tartalmazza.) A dolgot a hibaellenőrzés miatt érzem kritikusnak: ez amúgy is fontos lenne, de egy ilyen AI-modellnél, aminél mi sem tudhatjuk pontosan, hogy mi történik a háttérben, pláne. Az összegzősorok azonban lényegében megoldják ezt a problémát: bár nem volna rá szükség, de én ezeket is beolvastattam, kizárólag és kifejezetten azért, hogy utána leellenőrizzem, hogy a részletező sorok összege valóban kiadja-e az összesen-sort. Azért mondtam, hogy ez lényegében megoldja a problémát, mert annak a valószínűsége, hogy elromlik valami a részletező sorban *és* elromlik valami ugyanott az összegző sorban is *és* úgy romlik el mindkettő, hogy közben az összeg egyezése megmaradjon, marginális.
+Egy dolgot azonban ezzel együtt is fontosnak tartok kiemelni: hatalmas szerencsém volt az összegzősorok jelenlétével. (A kimutatásban, miután felsorolja egy kórház összes szakmáját, szerepel egy "összes osztály együtt" sor. Ez, pár oszloptól eltekintve, egyszerűen a felette lévő sorok összegét tartalmazza.) A dolgot a hibaellenőrzés miatt érzem kritikusnak: ez amúgy is fontos lenne, de egy ilyen AI-modellnél, aminél mi sem tudhatjuk pontosan, hogy mi történik a háttérben, pláne. Az összegzősorok azonban lényegében megoldják ezt a problémát: bár nem volna rá szükség, de én ezeket is beolvastattam, kizárólag és kifejezetten azért, hogy utána leellenőrizzem, hogy a részletező sorok összege valóban kiadja-e az összesen-sort. Azért mondtam, hogy ez lényegében megoldja a problémát, mert annak a valószínűsége, hogy elromlik valami a részletező sorban *és* elromlik valami ugyanott az összegző sorban is *és* úgy romlik el mindkettő, hogy közben az összeg egyezése megmaradjon, marginális. (A helyzet annyiban rosszabb, hogy ha nem OCR történik, hanem LLM-mel feldolgozás, akkor lehet, hogy a hibák nem tökéletesen függetlenek, hiszen az AI is "egyben látja" és dolgozza fel az oldalt. Ezért is fontos, hogy lesz másféle ellenőrzés is.)
 
-Sőt, még egy ellenőrzési lehetőség volt: pár oszlopot nem csak "függőlegesen", hanem "vízszintesen" is lehetett ellenőrizni. Például a halálozási arány az elhunyt és az elbocsátott betegek számának az aránya, de mivel mind az előbbi, mind az utóbbi kettő közölt oszlop, így ez lehetővé teszi, hogy megnézzük, hogy a kézzel kiszámolt arány egyezik-e a közölttel. (Lényegében hasznosítjuk, hogy a halálozási arány közlése "redundáns" volt.) Megint csak: marginális annak a valószínűsége, hogy az elhunytak vagy az elbocsátottak száma elromlik *és* a halálozási arány is elromlik, *és* a kettő úgy romlik el, hogy közben a fenti matematikai összefüggés megmaradjon köztük. Hasonló ellenőrzési lehetőséget kínál még az összes ágy száma (ez a működő I és a tartósan szünetelő összege), az elbocsátott betegek száma (az eltávozottak, más osztályra helyezettek és elhunytak összege), az ágykihasználás (a teljesített és teljesíthető ápolási napok számának hányadosa) és az ápolás átlagos időtartama (a teljesített ápolási napok és az elbocsátott betegek számának hányadosa). Az érdekesség kedvéért megjegyzem, hogy az 54 hibából 1 olyan volt, aminél bejött a fent általam "marginális"-nak nevezett lehetőség: úgy romlott el mind az egyik sor, mind az összegző-sor, hogy az összeg stimmelt -- de a "vízszintes" ellenőrzésen ez is kibukott. Sajnos ilyen ellenőrzés nem minden oszlopra van, de azért mint láttuk, a túlnyomó többségükre igen.
+Sőt, még egy ellenőrzési lehetőség volt: pár oszlopot nem csak "függőlegesen", hanem "vízszintesen" is lehetett ellenőrizni. Például a halálozási arány az elhunyt és az elbocsátott betegek számának az aránya, de mivel mind az előbbi, mind az utóbbi kettő közölt oszlop, így ez lehetővé teszi, hogy megnézzük, hogy a kézzel kiszámolt arány egyezik-e a közölttel. (Lényegében hasznosítjuk, hogy a halálozási arány közlése "redundáns" volt.) Megint csak: marginális annak a valószínűsége, hogy az elhunytak vagy az elbocsátottak száma elromlik *és* a halálozási arány is elromlik, *és* a kettő úgy romlik el, hogy közben a fenti matematikai összefüggés megmaradjon köztük. Hasonló ellenőrzési lehetőséget kínál még az összes ágy száma (ez a működő I és a tartósan szünetelő összege), az elbocsátott betegek száma (az eltávozottak, más osztályra helyezettek és elhunytak összege), az ágykihasználás (a teljesített és teljesíthető ápolási napok számának hányadosa) és az ápolás átlagos időtartama (a teljesített ápolási napok és az elbocsátott betegek számának hányadosa). Az érdekesség kedvéért megjegyzem, hogy az 54 hibából 1 olyan volt, aminél bejött a fent általam "marginális"-nak nevezett lehetőség: úgy romlott el mind az egyik sor, mind az összegző-sor, hogy az összeg stimmelt -- de a "vízszintes" ellenőrzésen ez is kibukott. Sajnos ilyen ellenőrzés nem minden oszlopra van, de azért mint láttuk, a túlnyomó többségükre igen. Ezekről az ellenőrzésekről is elmondható, hogy -- ugyanúgy, mint a "függőleges" ellenőrzéseknél -- az bennük a nagyon jó, hogy oda-vissza megerősítést jelentenek -- ha stimmelnek, akkor igen nagy valószínűséggel nem csak a számított oszlop jóságát igazoltuk, hanem a számítás alapját adó oszlopok jóságát is.
 
 A nagyságrendek kedvéért: a teljes 1994 és 2002 közötti adatbázis összesen 9280 sort tartalmazott, benne 120 ezer a fenti módon ellenőrizhető számmal -- és ebből a 120 ezer számból 54 bizonyult hibásnak az ellenőrzésen. (Egyébként ezek is szinte kivétel nélkül olyan esetek voltak, ahol az eredeti példány annyira rossz minőségben volt olvasható, hogy emberi szemmel is nagyon nehéz volt megmondani, hogy pontosan mi van leírva. Valójában tehát a legtöbb esetben még csak azt sem lehet mondani, hogy itt "hibázott" az AI, mert valószínűleg az emberi olvasók is teljesen ingadoztak volna, hogy mi van egyáltalán oda írva.) Ez 99,96%. Ezzel együtt is, rendkívül fontos volt, hogy megvoltak a fenti ellenőrzési lehetőségek. Lehet, hogy 99,96%, meg mindössze 54 hiba, de ha nincsenek a fenti ellenőrzési lehetőségek, akkor ezeket jó eséllyel soha nem találom meg -- vagyis kiadtam volna a kezemből valamit, amiben van 54 hibás érték. (Zárójelben: az is fontos tanulság, hogy -- pont emiatt a ritkaság miatt -- ezen a szúrópróba-szerű ellenőrzés sem igen segített volna.) Nyilván itt most erősen függ a dolog céljától, hogy ez mekkora baj, ebben az esetben nem haltak volna meg emberek, mert 54 szám hibás, de engem azért zavart volna. Úgyhogy nagyon kellettek az összegzősorok és a vízszintes azonosságok, vagyis általában, a tanulság az volt számomra, hogy az ilyen AI-os dolgoknál mindig gondolni kell az ellenőrzésre.
 
@@ -437,22 +436,41 @@ RawData2 <- RawData2[!(is.na(SzakmaKod) | trimws(SzakmaKod) == "" | SzakmaKod %i
                        | (Ev <= 2000 & SzakmaKod %in% 90:92))]
 ```
 
-Most már elvégezhetjük az ötféle "vízszintes" ellenőrzést is:
+Most már elvégezhetjük az ötféle "vízszintes" ellenőrzést is. Az első kettő egész számokra vonatkozik, úgyhogy azoknak egzaktan egyezniük kell:
 
 ```{r}
 identical(RawData2$OsszesAgy, RawData2$MukodoIAgy + RawData2$TartosanSzuneteloAgy)
 identical(RawData2$ElbocsatottBetegSzam,
           RawData2$EltavozottBetegSzam + RawData2$MasOsztalyBetegSzam + RawData2$MeghaltBetegSzam)
-all.equal(RawData2[ElbocsatottBetegSzam != 0]$Halalozas,
-          RawData2[ElbocsatottBetegSzam != 0]$MeghaltBetegSzam /
-            RawData2[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam * 100, tolerance = 1e-2)
-all.equal(RawData2[TeljesithetoApolasiNapSzam != 0]$Agykihasznalas,
-          RawData2[TeljesithetoApolasiNapSzam != 0]$TeljesitettApolasiNapSzam /
-            RawData2[TeljesithetoApolasiNapSzam != 0]$TeljesithetoApolasiNapSzam * 100, tolerance = 1e-2)
-all.equal(RawData2[ElbocsatottBetegSzam != 0]$ApolasAtlTartam,
-          RawData2[ElbocsatottBetegSzam != 0]$TeljesitettApolasiNapSzam /
-            RawData2[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam, tolerance = 1e-2)
 ```
+
+A másik három ellenőrzés valós számokra vonatkozik, úgyhogy itt azt tudjuk megnézni, hogy a kézileg kiszámolt érték kerekítés után egyezik-e a kimutatásban (kerekítetten) közölt értékkel. Ellenőrizzük ezeket (a halálozási arány a meghalt betegek és az elbocsátott betegek számának hányadosa, az ágykihasználás a teljesített és teljesíthető ápolási napok hányadosa, az ápolás átlagos időtartama a teljesített kórházi napok számának és az elbocsátott betegek számának a hányadosa):
+
+```{r}
+decimalplaces <- Vectorize(function(x) {
+  if (is.na(x)) return(NA_integer_)
+  if (abs(x - round(x)) > .Machine$double.eps^0.5) {
+    nchar(strsplit(sub('0+$', '', as.character(x)), ".", fixed = TRUE)[[1]][[2]])
+  } else {
+    return(0)
+  }
+})
+round_up_from <- Vectorize(function(x, digits = 0, threshold = 0.4995) {
+  f <- 10^digits
+  sign(x) * floor(abs(x) * f + (1 - threshold)) / f
+})
+with(RawData2[ElbocsatottBetegSzam != 0],
+     identical(Halalozas, round_up_from(MeghaltBetegSzam / ElbocsatottBetegSzam * 100, 2)))
+with(RawData2[TeljesithetoApolasiNapSzam != 0],
+     identical(Agykihasznalas, round_up_from(TeljesitettApolasiNapSzam / TeljesithetoApolasiNapSzam * 100,
+                                             decimalplaces(Agykihasznalas))))
+with(RawData2[ElbocsatottBetegSzam != 0],
+     identical(ApolasAtlTartam, round_up_from(TeljesitettApolasiNapSzam / ElbocsatottBetegSzam, 2)))
+```
+
+Minden stimmel, egyedül arra kell vigyázni, hogy a kerekítés a jelek szerint egy nagyon furcsa módon történt a kimutatásban: a szabály úgy tűnik az volt, hogy 0,4995 felett kerekítettek felfelé. (Így és csak így jön ugyanis ki, hogy minden kerekített érték stimmeljen.) Ezen kívül még az ágykihasználásos tesztnél kell óvatosnak lenni: a probléma az, hogy itt előfordulnak 100 feletti értékek, amit a kimutatás néha -- de nem mindig! -- csak egy tizedes jegyre kerekítve ad meg. (Magyarán, az értékes jegyek számát tartja állandóan. Ez jó is lenne, csak az nem jó, hogy a dolog nem egységes.) Úgyhogy itt egy kicsi heurisztikára volt szükség: az összehasonlításhoz a kézzel számolt értéket annyi jegyre kerekítettem, amennyi tizedes a közölt értékben volt. (A dolog azért heurisztika, mert elvileg elképzelhető, hogy például "114,2" valójában két tizedes, mert "114,20". Mivel a karakterfelismerés során számként olvastuk be ezt a mezőt -- amit jól tettünk, hiszen így is erősítettük a struktúrát -- ez nem derül ki.)
+
+A fenti ellenőrzések után javítsuk, egységesítsük tovább a formátumot.
 
 A szakmakódok itt nem egységesen két karakteresek, ezt javítsuk ki:
 
@@ -520,22 +538,7 @@ openxlsx2::write_xlsx(res, "ferenci-tamas-korhaz-agyszam-betegforgalom.xlsx")
 
 Az adatok validitása alatt nem azt értem, hogy melyik adat "gyanús" vagy akár "szinte irreális" (ilyen is van), hanem azt, ami *matematikailag* lehetetlen, hogy jó legyen. Több ilyen ellenőrzési lehetőségünk is van.
 
-Először is, megvizsgálhatjuk azt az 5 feltételt, amit a 2003 előtti adatoknál visszaellenőriztünk. (Vegyük észre, hogy a későbbi adatokra azt nem vizsgáltuk meg!) Íme az eredmény:
-
-```{r}
-identical(res$OsszesAgy, res$MukodoIAgy + res$TartosanSzuneteloAgy)
-identical(res$ElbocsatottBetegSzam,
-          res$EltavozottBetegSzam + res$MasOsztalyBetegSzam + res$MeghaltBetegSzam)
-all.equal(res[ElbocsatottBetegSzam != 0]$Halalozas,
-          res[ElbocsatottBetegSzam != 0]$MeghaltBetegSzam /
-            res[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam * 100, tolerance = 1e-2)
-all.equal(res[TeljesithetoApolasiNapSzam != 0]$Agykihasznalas,
-          res[TeljesithetoApolasiNapSzam != 0]$TeljesitettApolasiNapSzam /
-            res[TeljesithetoApolasiNapSzam != 0]$TeljesithetoApolasiNapSzam * 100, tolerance = 1e-2)
-all.equal(res[ElbocsatottBetegSzam != 0]$ApolasAtlTartam,
-          res[ElbocsatottBetegSzam != 0]$TeljesitettApolasiNapSzam /
-            res[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam, tolerance = 1e-2)
-```
+Először is, megvizsgálhatjuk azt az 5 feltételt, amit a 2003 előtti adatoknál visszaellenőriztünk. (Vegyük észre, hogy a későbbi adatokra azt nem vizsgáltuk meg! A dolog már csak azért is indokolt, mert mint láttuk, ott is az derült ki, hogy több esetben nem karakterfelismerési problémáról volt szó, hanem maguk a közölt adatok voltak rosszak -- ilyen tehát ugyanúgy előfordulhat 2003 és az után is.) Íme az eredmények.
 
 Az első teszt (az összes ágy száma egyenlő a tartósan szünetelő és a tartósan nem szünetelő ágyak számának összegével) elbukik a következő eseteken:
 
@@ -557,7 +560,38 @@ res[which(ElbocsatottBetegSzam != EltavozottBetegSzam + MasOsztalyBetegSzam + Me
       `Meghalt` = MeghaltBetegSzam)]
 ```
 
-A dolog azért érdekes, mert ezt a tesztet eredetileg a karakterfelismerési hibák miatt találtuk ki -- ezért is nem futott eddig a későbbi adatokra -- de a fentiek szerint valójában ott bukik el, ahol nincs is karakterfelismerés -- ezek tehát, úgy tűnik, valódi adatközlési hibák.
+A dolog azért érdekes, mert ezeket a teszteket eredetileg a karakterfelismerési hibák miatt találtuk ki -- ezért is nem futott eddig a 2003 és az utáni adatokra -- de a fentiek szerint valójában ott is elbukik néhány esetben, ahol nincs is karakterfelismerés -- ezek tehát, úgy tűnik, valódi adatközlési hibák.
+
+Menjünk tovább. A harmadik teszt (a halálozási arány a meghalt betegek és az elbocsátott betegek számának hányadosa):
+
+```{r}
+res[ElbocsatottBetegSzam != 0 & Ev >= 2003][
+  round_up_from(MeghaltBetegSzam / ElbocsatottBetegSzam * 100, 2) != Halalozas][
+  order(round_up_from(MeghaltBetegSzam / ElbocsatottBetegSzam * 100, 2) - Halalozas),
+  .(`Év` = Ev, `Kórház kódja` = KorhazRovid, `Szakmakód` = SzakmaKod,
+    `Meghalt` = MeghaltBetegSzam, `Elbocsátott` = ElbocsatottBetegSzam,
+    `Kézzel számolt arány` = round_up_from(MeghaltBetegSzam / ElbocsatottBetegSzam * 100, 2),
+    `Közölt arány` = Halalozas)]
+```
+
+A negyedik teszt (az ágykihasználás a teljesített és teljesíthető ápolási napok hányadosa), a már látott módon:
+
+```{r}
+res[TeljesithetoApolasiNapSzam != 0 & Ev >= 2003][
+  round_up_from(TeljesitettApolasiNapSzam / TeljesithetoApolasiNapSzam * 100,
+        decimalplaces(Agykihasznalas)) != Agykihasznalas][
+          order(round_up_from(TeljesitettApolasiNapSzam / TeljesithetoApolasiNapSzam * 100,
+                      decimalplaces(Agykihasznalas)) - Agykihasznalas),
+          .(`Év` = Ev, `Kórház kódja` = KorhazRovid, `Szakmakód` = SzakmaKod,
+            `Teljesített` = TeljesitettApolasiNapSzam, `Teljesíthető ` = TeljesithetoApolasiNapSzam,
+            `Kézzel számolt kihasználás` = round_up_from(TeljesitettApolasiNapSzam / TeljesithetoApolasiNapSzam * 100,
+                                                 decimalplaces(Agykihasznalas)),
+            `Közölt kihasználás` = Agykihasznalas)]
+```
+
+Mint láthatjuk, mindkét esetben van néhány hiba, de kivétel nélkül egy századnyi. Mondanám, hogy "kerekítési hiba", csak épp ugye gép csinálja a kerekítést, és egész szám bemenetekből, így a dolog elég furcsa. A jelenség nem azon múlik, hogy 0,4995-től kerekítek felfele: a szokásos 0,5-tel is maradna még eltérés itt (és cserében néhány régebbi elromlana).
+
+Az ötödik teszt (az ápolás átlagos időtartama a teljesített kórházi napok számának és az elbocsátott betegek számának a hányadosa) azonban meglepő eredményt hoz: összesen `r nrow(res[ElbocsatottBetegSzam != 0 & Ev >= 2003][round_up_from(TeljesitettApolasiNapSzam / ElbocsatottBetegSzam, 2) != ApolasAtlTartam])` esetben van eltérés. Ebből csak `r nrow(res[ElbocsatottBetegSzam != 0 & Ev >= 2003][round_up_from(TeljesitettApolasiNapSzam / ElbocsatottBetegSzam, 2) != ApolasAtlTartam][abs(round_up_from(TeljesitettApolasiNapSzam / ElbocsatottBetegSzam, 2) - ApolasAtlTartam) <= 0.01])` kisebb vagy egyenlő mint egy század, így nem tudom megmagyarázni, hogy mi az eltérés oka. Mindazonáltal az eltérések több mint 99%-a kisebb mint 1, így a dolognak különösebb gyakorlati jelentősége nincsen.
 
 Két további ellenőrzési lehetőség is adja magát:
 

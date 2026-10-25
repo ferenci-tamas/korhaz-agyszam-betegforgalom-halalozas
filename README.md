@@ -2,7 +2,7 @@ A magyar kórházi ágyszám-, betegforgalmi- és halálozási adatok
 rekonstrukciója, feldolgozhatóvá tétele és megőrzése
 ================
 Ferenci Tamás (<https://www.medstat.hu/>)<br>
-2026. október 22.
+2026. október 25.
 
 - [Összefoglaló](#összefoglaló)
 - [Bevezető gondolatok,
@@ -31,14 +31,15 @@ Ferenci Tamás (<https://www.medstat.hu/>)<br>
   (egy nem strukturált dokumentumban vannak közzétéve). A 2003 előtti
   időszakról még csak ez sem mondható el: az akkori kimutatások
   kizárólag papír-alapon lelhetőek fel könyvtárakban.
-- Éppen ezért egy hobbiprojektet indítottam, melynek célja egyrészt a
-  2003 és későbbi adatok gépi úton feldolgozható formára konvertálása és
-  nyilvános közzététele, másrészt a 2003 előtti kimutatások
-  digitalizálása, a bennük lévő adatok elektronikus formára konvertálása
-  és utána szintén azok nyilvános közzététele gépi feldolgozásra is
-  alkalmas formátumban. Ezek az adatok így tehát már egységes adatbázist
-  alkotnak 1994-től napjainkig, mely bárki számára hozzáférhető, és
-  további elemzésre alkalmas.
+- Éppen ezért egy hobbiprojektet indítottam, melynek célja az aktív
+  fekvőbeteg-ellátásra vonatkozóan egyrészt a 2003 és későbbi adatok
+  gépi úton feldolgozható formára konvertálása és nyilvános közzététele,
+  másrészt a 2003 előtti kimutatások digitalizálása, a bennük lévő
+  adatok elektronikus formára konvertálása és utána szintén azok
+  nyilvános közzététele gépi feldolgozásra is alkalmas formátumban. Ezek
+  az adatok így tehát már egységes adatbázist alkotnak 1994-től
+  napjainkig, mely bárki számára hozzáférhető, és további elemzésre
+  alkalmas.
 - A projekt célja kettős. Ezen adatok történelmünk egy szeletét
   dokumentálják; én úgy tekintem, hogy ez egyfajta örökségünk, amit
   fontos, hogy akár az érdeklődők, akár a jövő történészei, egyáltalán,
@@ -211,11 +212,11 @@ kereshetőség és a feldolgozhatóság, ahogy már említettem.)
 
 Összességében tehát célul tűztem ki mindkét feladat megoldását, és ennek
 révén azt, hogy egy kezdetektől induló, teljes időszakot lefedő,
-egységes, gépi úton feldolgozható adatbázist hozzak létre a magyar
-kórházak ágyszám-, betegforgalmi- és halálozási adatairól, mely bárki
-számára nyilvánosan elérhető, hogy ezzel is segítsem a jó minőségű
-elemzések megszületését és ezen információk megőrzését a jövő generációk
-számára.
+egységes, gépi úton feldolgozható adatbázist hozzak létre a magyar aktív
+fekvőbeteg-ellátás ágyszám-, betegforgalmi- és halálozási adatairól,
+mely bárki számára nyilvánosan elérhető, hogy ezzel is segítsem a jó
+minőségű elemzések megszületését és ezen információk megőrzését a jövő
+generációk számára.
 
 ## A végeredmény: a rekonstruált, egységesített, feldolgozható adatsor
 
@@ -327,10 +328,9 @@ res <- rbindlist(lapply(files, function(file) {
 }))
 
 res <- res[order(Ev)]
-res$KorhazNev <- ifelse(
-  do.call(c, gregexpr("(", res$Korhaz, fixed = TRUE))==-1,
-  substring(res$Korhaz, 6), substring(res$Korhaz, 6,
-                                      nchar(res$Korhaz)-17))
+res$KorhazNev <- res$Korhaz |>
+    sub(pattern = "^\\S+\\s+", replacement = "") |>
+    sub(pattern = "\\s*\\(NEAK kód:[^()]*\\)$", replacement = "")
 ```
 
 A következő kommentárok tartoznak a fentiekhez:
@@ -591,7 +591,10 @@ kifejezetten azért, hogy utána leellenőrizzem, hogy a részletező sorok
 lényegében megoldja a problémát, mert annak a valószínűsége, hogy
 elromlik valami a részletező sorban *és* elromlik valami ugyanott az
 összegző sorban is *és* úgy romlik el mindkettő, hogy közben az összeg
-egyezése megmaradjon, marginális.
+egyezése megmaradjon, marginális. (A helyzet annyiban rosszabb, hogy ha
+nem OCR történik, hanem LLM-mel feldolgozás, akkor lehet, hogy a hibák
+nem tökéletesen függetlenek, hiszen az AI is „egyben látja” és dolgozza
+fel az oldalt. Ezért is fontos, hogy lesz másféle ellenőrzés is.)
 
 Sőt, még egy ellenőrzési lehetőség volt: pár oszlopot nem csak
 „függőlegesen”, hanem „vízszintesen” is lehetett ellenőrizni. Például a
@@ -614,6 +617,11 @@ megjegyzem, hogy az 54 hibából 1 olyan volt, aminél bejött a fent
 egyik sor, mind az összegző-sor, hogy az összeg stimmelt – de a
 „vízszintes” ellenőrzésen ez is kibukott. Sajnos ilyen ellenőrzés nem
 minden oszlopra van, de azért mint láttuk, a túlnyomó többségükre igen.
+Ezekről az ellenőrzésekről is elmondható, hogy – ugyanúgy, mint a
+„függőleges” ellenőrzéseknél – az bennük a nagyon jó, hogy oda-vissza
+megerősítést jelentenek – ha stimmelnek, akkor igen nagy valószínűséggel
+nem csak a számított oszlop jóságát igazoltuk, hanem a számítás alapját
+adó oszlopok jóságát is.
 
 A nagyságrendek kedvéért: a teljes 1994 és 2002 közötti adatbázis
 összesen 9280 sort tartalmazott, benne 120 ezer a fenti módon
@@ -924,7 +932,9 @@ RawData2 <- RawData2[!(is.na(SzakmaKod) | trimws(SzakmaKod) == "" | SzakmaKod %i
                        | (Ev <= 2000 & SzakmaKod %in% 90:92))]
 ```
 
-Most már elvégezhetjük az ötféle „vízszintes” ellenőrzést is:
+Most már elvégezhetjük az ötféle „vízszintes” ellenőrzést is. Az első
+kettő egész számokra vonatkozik, úgyhogy azoknak egzaktan egyezniük
+kell:
 
 ``` r
 identical(RawData2$OsszesAgy, RawData2$MukodoIAgy + RawData2$TartosanSzuneteloAgy)
@@ -939,29 +949,65 @@ identical(RawData2$ElbocsatottBetegSzam,
 
     ## [1] TRUE
 
+A másik három ellenőrzés valós számokra vonatkozik, úgyhogy itt azt
+tudjuk megnézni, hogy a kézileg kiszámolt érték kerekítés után egyezik-e
+a kimutatásban (kerekítetten) közölt értékkel. Ellenőrizzük ezeket (a
+halálozási arány a meghalt betegek és az elbocsátott betegek számának
+hányadosa, az ágykihasználás a teljesített és teljesíthető ápolási napok
+hányadosa, az ápolás átlagos időtartama a teljesített kórházi napok
+számának és az elbocsátott betegek számának a hányadosa):
+
 ``` r
-all.equal(RawData2[ElbocsatottBetegSzam != 0]$Halalozas,
-          RawData2[ElbocsatottBetegSzam != 0]$MeghaltBetegSzam /
-            RawData2[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam * 100, tolerance = 1e-2)
+decimalplaces <- Vectorize(function(x) {
+  if (is.na(x)) return(NA_integer_)
+  if (abs(x - round(x)) > .Machine$double.eps^0.5) {
+    nchar(strsplit(sub('0+$', '', as.character(x)), ".", fixed = TRUE)[[1]][[2]])
+  } else {
+    return(0)
+  }
+})
+round_up_from <- Vectorize(function(x, digits = 0, threshold = 0.4995) {
+  f <- 10^digits
+  sign(x) * floor(abs(x) * f + (1 - threshold)) / f
+})
+with(RawData2[ElbocsatottBetegSzam != 0],
+     identical(Halalozas, round_up_from(MeghaltBetegSzam / ElbocsatottBetegSzam * 100, 2)))
 ```
 
     ## [1] TRUE
 
 ``` r
-all.equal(RawData2[TeljesithetoApolasiNapSzam != 0]$Agykihasznalas,
-          RawData2[TeljesithetoApolasiNapSzam != 0]$TeljesitettApolasiNapSzam /
-            RawData2[TeljesithetoApolasiNapSzam != 0]$TeljesithetoApolasiNapSzam * 100, tolerance = 1e-2)
+with(RawData2[TeljesithetoApolasiNapSzam != 0],
+     identical(Agykihasznalas, round_up_from(TeljesitettApolasiNapSzam / TeljesithetoApolasiNapSzam * 100,
+                                             decimalplaces(Agykihasznalas))))
 ```
 
     ## [1] TRUE
 
 ``` r
-all.equal(RawData2[ElbocsatottBetegSzam != 0]$ApolasAtlTartam,
-          RawData2[ElbocsatottBetegSzam != 0]$TeljesitettApolasiNapSzam /
-            RawData2[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam, tolerance = 1e-2)
+with(RawData2[ElbocsatottBetegSzam != 0],
+     identical(ApolasAtlTartam, round_up_from(TeljesitettApolasiNapSzam / ElbocsatottBetegSzam, 2)))
 ```
 
     ## [1] TRUE
+
+Minden stimmel, egyedül arra kell vigyázni, hogy a kerekítés a jelek
+szerint egy nagyon furcsa módon történt a kimutatásban: a szabály úgy
+tűnik az volt, hogy 0,4995 felett kerekítettek felfelé. (Így és csak így
+jön ugyanis ki, hogy minden kerekített érték stimmeljen.) Ezen kívül még
+az ágykihasználásos tesztnél kell óvatosnak lenni: a probléma az, hogy
+itt előfordulnak 100 feletti értékek, amit a kimutatás néha – de nem
+mindig! – csak egy tizedes jegyre kerekítve ad meg. (Magyarán, az
+értékes jegyek számát tartja állandóan. Ez jó is lenne, csak az nem jó,
+hogy a dolog nem egységes.) Úgyhogy itt egy kicsi heurisztikára volt
+szükség: az összehasonlításhoz a kézzel számolt értéket annyi jegyre
+kerekítettem, amennyi tizedes a közölt értékben volt. (A dolog azért
+heurisztika, mert elvileg elképzelhető, hogy például „114,2” valójában
+két tizedes, mert „114,20”. Mivel a karakterfelismerés során számként
+olvastuk be ezt a mezőt – amit jól tettünk, hiszen így is erősítettük a
+struktúrát – ez nem derül ki.)
+
+A fenti ellenőrzések után javítsuk, egységesítsük tovább a formátumot.
 
 A szakmakódok itt nem egységesen két karakteresek, ezt javítsuk ki:
 
@@ -1092,44 +1138,10 @@ lehetetlen, hogy jó legyen. Több ilyen ellenőrzési lehetőségünk is van.
 
 Először is, megvizsgálhatjuk azt az 5 feltételt, amit a 2003 előtti
 adatoknál visszaellenőriztünk. (Vegyük észre, hogy a későbbi adatokra
-azt nem vizsgáltuk meg!) Íme az eredmény:
-
-``` r
-identical(res$OsszesAgy, res$MukodoIAgy + res$TartosanSzuneteloAgy)
-```
-
-    ## [1] FALSE
-
-``` r
-identical(res$ElbocsatottBetegSzam,
-          res$EltavozottBetegSzam + res$MasOsztalyBetegSzam + res$MeghaltBetegSzam)
-```
-
-    ## [1] FALSE
-
-``` r
-all.equal(res[ElbocsatottBetegSzam != 0]$Halalozas,
-          res[ElbocsatottBetegSzam != 0]$MeghaltBetegSzam /
-            res[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam * 100, tolerance = 1e-2)
-```
-
-    ## [1] TRUE
-
-``` r
-all.equal(res[TeljesithetoApolasiNapSzam != 0]$Agykihasznalas,
-          res[TeljesithetoApolasiNapSzam != 0]$TeljesitettApolasiNapSzam /
-            res[TeljesithetoApolasiNapSzam != 0]$TeljesithetoApolasiNapSzam * 100, tolerance = 1e-2)
-```
-
-    ## [1] TRUE
-
-``` r
-all.equal(res[ElbocsatottBetegSzam != 0]$ApolasAtlTartam,
-          res[ElbocsatottBetegSzam != 0]$TeljesitettApolasiNapSzam /
-            res[ElbocsatottBetegSzam != 0]$ElbocsatottBetegSzam, tolerance = 1e-2)
-```
-
-    ## [1] TRUE
+azt nem vizsgáltuk meg! A dolog már csak azért is indokolt, mert mint
+láttuk, ott is az derült ki, hogy több esetben nem karakterfelismerési
+problémáról volt szó, hanem maguk a közölt adatok voltak rosszak – ilyen
+tehát ugyanúgy előfordulhat 2003 és az után is.) Íme az eredmények.
 
 Az első teszt (az összes ágy száma egyenlő a tartósan szünetelő és a
 tartósan nem szünetelő ágyak számának összegével) elbukik a következő
@@ -1178,11 +1190,74 @@ res[which(ElbocsatottBetegSzam != EltavozottBetegSzam + MasOsztalyBetegSzam + Me
 
 </div>
 
-A dolog azért érdekes, mert ezt a tesztet eredetileg a
+A dolog azért érdekes, mert ezeket a teszteket eredetileg a
 karakterfelismerési hibák miatt találtuk ki – ezért is nem futott eddig
-a későbbi adatokra – de a fentiek szerint valójában ott bukik el, ahol
-nincs is karakterfelismerés – ezek tehát, úgy tűnik, valódi adatközlési
-hibák.
+a 2003 és az utáni adatokra – de a fentiek szerint valójában ott is
+elbukik néhány esetben, ahol nincs is karakterfelismerés – ezek tehát,
+úgy tűnik, valódi adatközlési hibák.
+
+Menjünk tovább. A harmadik teszt (a halálozási arány a meghalt betegek
+és az elbocsátott betegek számának hányadosa):
+
+``` r
+res[ElbocsatottBetegSzam != 0 & Ev >= 2003][
+  round_up_from(MeghaltBetegSzam / ElbocsatottBetegSzam * 100, 2) != Halalozas][
+  order(round_up_from(MeghaltBetegSzam / ElbocsatottBetegSzam * 100, 2) - Halalozas),
+  .(`Év` = Ev, `Kórház kódja` = KorhazRovid, `Szakmakód` = SzakmaKod,
+    `Meghalt` = MeghaltBetegSzam, `Elbocsátott` = ElbocsatottBetegSzam,
+    `Kézzel számolt arány` = round_up_from(MeghaltBetegSzam / ElbocsatottBetegSzam * 100, 2),
+    `Közölt arány` = Halalozas)]
+```
+
+<div class="kable-table">
+
+| Év | Kórház kódja | Szakmakód | Meghalt | Elbocsátott | Kézzel számolt arány | Közölt arány |
+|---:|:---|:---|---:|---:|---:|---:|
+| 2019 | 0163 | 15 | 69 | 1439 | 4.80 | 4.79 |
+| 2016 | 0901 | 10OT | 57 | 5561 | 1.03 | 1.02 |
+| 2004 | 1703 | 92 | 38 | 6281 | 0.61 | 0.60 |
+
+</div>
+
+A negyedik teszt (az ágykihasználás a teljesített és teljesíthető
+ápolási napok hányadosa), a már látott módon:
+
+``` r
+res[TeljesithetoApolasiNapSzam != 0 & Ev >= 2003][
+  round_up_from(TeljesitettApolasiNapSzam / TeljesithetoApolasiNapSzam * 100,
+        decimalplaces(Agykihasznalas)) != Agykihasznalas][
+          order(round_up_from(TeljesitettApolasiNapSzam / TeljesithetoApolasiNapSzam * 100,
+                      decimalplaces(Agykihasznalas)) - Agykihasznalas),
+          .(`Év` = Ev, `Kórház kódja` = KorhazRovid, `Szakmakód` = SzakmaKod,
+            `Teljesített` = TeljesitettApolasiNapSzam, `Teljesíthető ` = TeljesithetoApolasiNapSzam,
+            `Kézzel számolt kihasználás` = round_up_from(TeljesitettApolasiNapSzam / TeljesithetoApolasiNapSzam * 100,
+                                                 decimalplaces(Agykihasznalas)),
+            `Közölt kihasználás` = Agykihasznalas)]
+```
+
+<div class="kable-table">
+
+| Év | Kórház kódja | Szakmakód | Teljesített | Teljesíthető | Kézzel számolt kihasználás | Közölt kihasználás |
+|---:|:---|:---|---:|---:|---:|---:|
+| 2022 | 0243 | 15 | 12812 | 17813 | 71.93 | 71.92 |
+| 2005 | 0154 | 12 | 66620 | 85045 | 78.34 | 78.33 |
+| 2004 | 1101 | 09 | 17388 | 24888 | 69.87 | 69.86 |
+
+</div>
+
+Mint láthatjuk, mindkét esetben van néhány hiba, de kivétel nélkül egy
+századnyi. Mondanám, hogy „kerekítési hiba”, csak épp ugye gép csinálja
+a kerekítést, és egész szám bemenetekből, így a dolog elég furcsa. A
+jelenség nem azon múlik, hogy 0,4995-től kerekítek felfele: a szokásos
+0,5-tel is maradna még eltérés itt (és cserében néhány régebbi
+elromlana).
+
+Az ötödik teszt (az ápolás átlagos időtartama a teljesített kórházi
+napok számának és az elbocsátott betegek számának a hányadosa) azonban
+meglepő eredményt hoz: összesen 6106 esetben van eltérés. Ebből csak
+1023 kisebb vagy egyenlő mint egy század, így nem tudom megmagyarázni,
+hogy mi az eltérés oka. Mindazonáltal az eltérések több mint 99%-a
+kisebb mint 1, így a dolognak különösebb gyakorlati jelentősége nincsen.
 
 Két további ellenőrzési lehetőség is adja magát:
 
